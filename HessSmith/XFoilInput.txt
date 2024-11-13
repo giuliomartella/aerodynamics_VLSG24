@@ -1,0 +1,19 @@
+naca  0012
+
+pane
+
+gdes
+tgap 0 0 
+exec 
+
+
+ppar
+n  102
+
+
+save  NACA_0012.dat
+
+y
+
+quit 
+
