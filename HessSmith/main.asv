@@ -142,7 +142,7 @@ Soluzione = linsolve(matriceA,TermineNoto);
 %% Calcolo del cp e della velocità sui pannelli
 
 % compute sources induced velocity through loop
-sourceMat = zeros(NPannelli, NPannelli + 1);
+sourceMat = zeros(NPannelli);
 for i = 1:NPannelli
     index_i = i; % riga
 
@@ -177,22 +177,7 @@ end
 
 
 % sum velocity 
-velPannelli = sourceMat * Soluzione + velStreamTangent;
-
-cp = 1 - abs(velPannelli) .^ 2;
-
-figure()
-%x = linspace(0,2*pi,50);
-%y = sin(x) + randi(50,1,50);
-%c = linspace(1,10,length(x));
-scatter(x(1:end-1),y(1:end-1),[],-cp,'filled')
-axis equal
-grid on
-colorbar
-colormap jet
-figure()
-plot(x(1:end-1), -cp)
-grid on
+velPannelliXY = sourceMat * Soluzione + velStreamTangent;
 
 
 %%
