@@ -23,11 +23,8 @@ aTh = trapz(t, dy./sqrt(0.25 - t.^2)) / pi
 aTh = rad2deg(aTh)
 
 
-
-dy = meanLine(:,3);
-t = linspace(-0.5, 0.5, numel(dy))';
 dyf = @(x) interp1(t, dy, x);
 f = @(t) dyf(t)./sqrt(0.25 - t.^2);  
 
-aTh = 1/pi *integral(f,-0.5 ,0.5)  % using integral results are kinda better
-aTh = rad2deg(aTh)
+ciao = 1/pi *integral(f,-0.5 +h,0.5-h,'RelTol',0,'AbsTol',1e-12)
+cai
