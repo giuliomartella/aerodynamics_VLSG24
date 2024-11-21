@@ -31,7 +31,7 @@ for i = 1:numel(airfoil.x)
 end
 
 % Define a high-resolution x-coordinate grid for the camber line.
-n = 1e4; % Number of points for the camber line.
+n = 5e4; % Number of points for the camber line.
 meanLine.xMl = linspace(-0.5, 0.5, n); % Uniform x-coordinates from leading to trailing edge.
 
 % Fit cubic splines to the upper and lower surfaces.

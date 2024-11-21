@@ -24,6 +24,10 @@ plot(meanLine.xMl, meanLine.dy, 'g') % Camber line derivative
 % Spline interpolation for camber line derivative
 dyf = @(x) spline(meanLine.xMl, meanLine.dy, x);
 
+% Note: rotate again the profile of an angle tau to turn back in xfoil .dat
+% file
+% reference frame.
+
 % Compute Theodorsen's angle of attack
 f_th = @(t) dyf(t) ./ sqrt(0.25 - t.^2);  
 aTh = 1/pi * integral(f_th, -0.5, 0.5) + meanLine.tau;
@@ -45,11 +49,11 @@ disp(['Zero-lift angle of attack (degrees): ', num2str(a0Deg)])
 % aThDeg = rad2deg(aTh)
 % 
 % f_a0 = @(t) dyf(-0.5 * cos(t)).* cos(t);  
-% a0 = aTh - 1/pi *integral(f_a0, 0, pi);
+% a0 = aTh - 1/pi *integral(f_a0, 0, pi) + meanLine.tau;
 % a0Deg = rad2deg(a0)
 % 
 % f_a0 = @(t) dyf(-0.5 * cos(t)).* (1-cos(t));  
-% a0 = 1/pi *integral(f_a0, 0, pi);
+% a0 = 1/pi *integral(f_a0, 0, pi) + meanLine.tau;
 % a0Deg = rad2deg(a0)
 
 
