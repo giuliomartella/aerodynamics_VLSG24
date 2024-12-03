@@ -66,4 +66,4 @@ l = linspace(-0.5 + n^-1, 0.5 - n^-1,n); % estremi di integrazione
 I = dy_dx./sqrt(0.25 - l.^2);
 
 a_Th = trapz(l,I) /  pi;
-a_Th = rad2deg(a_Th)
+a_Th = rad2deg(a_Th);

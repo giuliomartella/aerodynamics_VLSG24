@@ -23,13 +23,13 @@ for ii = 1:length(cpData.Angles)
     cpup = interp1(cpData.Points(1:ba,1), cpData.Cp(1:ba,ii),linspace(0,1,1000));
     cpdown = interp1(cpData.Points(ba+1:end,1), cpData.Cp(ba+1:end,ii),linspace(0,1,1000));
     cpDiff = cpdown - cpup;
-    [cpPeak(ii),pos(ii)] = min(cpDiff);
-    leCpDiff(ii) = abs( cpData.Cp(ba,ii) - cpData.Cp(ba+1,ii));
+    [cpPeak(ii),pos(ii)] = max(cpDiff);
+    leCpDiff(ii) = abs( cpData.Cp(ba-1,ii) - cpData.Cp(ba+1,ii));
 end
 
 
 % Finding minimum peak
-[minCpPeak,I] = max(cpPeak);
+[minCpPeak,I] = min(cpPeak);
 alphaTheodorsen = cpData.Angles(I);
 fprintf("Theodorsen angle according to minimum cp difference: %.4f°", cpData.Angles(I))
 fprintf("\n Minimum peak is of %.4f and is achieved at %.4f m along the chord\n\n", minCpPeak, pos(I)/1000)
