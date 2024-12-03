@@ -11,11 +11,12 @@ wing.controlPoint = zeros(discretize(1), discretize(2), 3);
 x = linspace(-0.5, 0.5, discretize(2)+1);
 x = x(1: discretize(2)) + 1 / discretize(2) / 2; % abscissa
 wing.chordDistribution = (1- abs(x)/0.5 * wing.taper) * wing.rootChord;
+wing.twistDistribution = wing.twistPrime * abs(x)/0.5;
 
 for i = 1:discretize(2)
     % define planar distribution 
     wing.controlPoint(:, i, 1) = linspace(0, wing.chordDistribution(i), discretize(1));
-    wing.controlPoint(:, i, 2) = findY(wing.airfoilCoefficients, wing.chordDistribution(i), discretize);
+    wing.controlPoint(:, i, 2) = findY(wing.airfoilCoefficients, wing.chordDistribution(i), wing.twistDistribution(i), discretize);
     wing.controlPoint(:, i, 3) = x(i) * wing.span * cos(wing.dihedral) * cos(wing.sweep);
 
 
@@ -25,7 +26,7 @@ end
 wing.controlPoint(:, :, 1) = wing.controlPoint(:, :, 1) + abs(wing.controlPoint(:, :, 3)) * sin(wing.sweep);
 wing.controlPoint(:, :, 2) = wing.controlPoint(:, :, 2) + abs(wing.controlPoint(:, :, 3)) * sin(wing.dihedral);
 
-% fancy plots to check wing shape
+% fancy plots to check wing shape, plot functions are AI generated
 % scatterControlPoints(wing)
  plotWingSurface(wing)
 
@@ -33,14 +34,23 @@ wing.controlPoint(:, :, 2) = wing.controlPoint(:, :, 2) + abs(wing.controlPoint(
 
 
 wing.normal = zeros(discretize(1), discretize(2), 3);
-wing.normal(:,:, 1) = ones(discretize(1), discretize(2));
 
 % We may now take advantage of the sine series description of the mean
 % line. x-derivative will be obtained analytically.
 yPrime = zeros(discretize(1), discretize(2));
 for i = 1:discretize(2)
-    yPrime(:, i) = findYPrime(wing.airfoilCoefficients, wing.chordDistribution(i), discretize);
+    yPrime(:, i) = findYPrime(wing.airfoilCoefficients, wing.chordDistribution(i), wing.twistDistribution(i), discretize);
 end
+% Before considering dihedral effect the tangent versor is tau =
+% [1; yPrime], so the normal is n = [-yPrime; 1]
+wing.normal(:,:, 1) = - yPrime ./ sqrt(yPrime.^2 +1) * cos(wing.dihedral);
+wing.normal(:,:, 2) = 1 ./ sqrt(yPrime.^2 +1) * cos(wing.dihedral);
+
+% Now consider dihedral
+wing.normal(:,:, 3) = sin(wing.dihedral) .* sign(- x);
+
+plotWingNormals(wing)
+
 
 
 
@@ -49,16 +59,23 @@ end
 
 
 %% functions
-    function y = findY(airfoilCoefficients, chordDistribution, discretize)
-        y = airfoilCoefficients(1) * sin(1 * pi * linspace(0, chordDistribution, discretize(1))) ...
-            + airfoilCoefficients(2) * sin(2 * pi * linspace(0, chordDistribution, discretize(1)))  ...
-            + airfoilCoefficients(3) * sin(3 * pi * linspace(0, chordDistribution, discretize(1)));
+    function y = findY(airfoilCoefficients, chordDistribution, twist, discretize)
+        s = linspace(0, chordDistribution, discretize(1));
+        y = airfoilCoefficients(1) * sin(1 * pi * s) ...
+            + airfoilCoefficients(2) * sin(2 * pi * s)  ...
+            + airfoilCoefficients(3) * sin(3 * pi * s);
+        twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [s; y];
+        y = twisted(2, :);
+
     end
 
-    function yPrime = findYPrime(airfoilCoefficients, chordDistribution, discretize)
-        yPrime = airfoilCoefficients(1) * cos(1 * pi * linspace(0, chordDistribution, discretize(1))) * 1 * pi ...
-            + airfoilCoefficients(2) * cos(2 * pi * linspace(0, chordDistribution, discretize(1))) * 2 * pi ...
-            + airfoilCoefficients(3) * cos(3 * pi * linspace(0, chordDistribution, discretize(1))) * 3 * pi;
+    function yPrime = findYPrime(airfoilCoefficients, chordDistribution, twist, discretize)
+        s = linspace(0, chordDistribution, discretize(1));
+        yPrime = airfoilCoefficients(1) * cos(1 * pi * s) * 1 * pi ...
+            + airfoilCoefficients(2) * cos(2 * pi * s) * 2 * pi ...
+            + airfoilCoefficients(3) * cos(3 * pi * s) * 3 * pi;
+        twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [s; yPrime];
+        yPrime = twisted(2, :);
     end
 
     function scatterControlPoints(wing)
@@ -140,5 +157,63 @@ function plotWingSurface(wing)
     view(3); % Set 3D view angle
 end
 
+function plotWingNormals(wing)
+% PLOTWINGNORMALS Visualizes the normal vectors of the wing surface
+%
+% This function plots the wing surface along with its normal vectors 
+% using quiver3 for clear representation.
+%
+% Inputs:
+%   - wing: A structure with fields:
+%       * controlPoint: 3D array of control points [N_chord x N_span x 3]
+%       * normal: 3D array of normal vectors [N_chord x N_span x 3]
+
+    % Extract control points
+    controlPoints = wing.controlPoint;
+    x = controlPoints(:, :, 1); % Chordwise direction
+    y = controlPoints(:, :, 2); % Vertical displacement (airfoil shape)
+    z = controlPoints(:, :, 3); % Spanwise direction
+
+    % Extract normal vectors
+    normals = wing.normal;
+    nx = normals(:, :, 1); % Normal vector X component
+    ny = normals(:, :, 2); % Normal vector Y component
+    nz = normals(:, :, 3); % Normal vector Z component
+
+    % Plot the wing surface
+    figure;
+    surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
+    hold on;
+
+    % Add the normal vectors
+    % Flatten the arrays for quiver3
+    x_flat = x(:);
+    y_flat = y(:);
+    z_flat = z(:);
+    nx_flat = nx(:);
+    ny_flat = ny(:);
+    nz_flat = nz(:);
+
+    % Scale factor for normal vector length
+    scaleFactor = 0.1 * max(wing.span, max(wing.chordDistribution(:))); 
+
+    % Plot normal vectors as arrows
+    quiver3(z_flat, x_flat, y_flat, ...
+            scaleFactor * nz_flat, scaleFactor * nx_flat, scaleFactor * ny_flat, ...
+            'k', 'LineWidth', 1, 'MaxHeadSize', 0.5);
+
+    % Aesthetic improvements
+    colormap jet; % Use a color map for surface shading
+    colorbar; % Add a color bar to visualize the height variation
+    grid on; % Enable grid
+    axis equal; % Use equal scaling for all axes
+    xlabel('Spanwise Direction (Z)'); % Label for x-axis
+    ylabel('Chord Direction (X)'); % Label for y-axis
+    zlabel('Vertical Displacement (Y)'); % Label for z-axis
+    title('3D Wing Surface with Normal Vectors'); % Plot title
+    view(3); % Set 3D view angle
+
+    hold off;
+end
 
 end
