@@ -7,7 +7,6 @@ function wing = buildElement(wing, discretize)
 
 
 %% Control Points
-nSingularities = discretize(1) * discretize(2);
 wing.controlPoint = zeros(discretize(1), discretize(2), 3);
 x = linspace(-0.5, 0.5, discretize(2)+1);
 x = x(1: discretize(2)) + 1 / discretize(2) / 2; % abscissa
@@ -16,10 +15,7 @@ wing.chordDistribution = (1- abs(x)/0.5 * wing.taper) * wing.rootChord;
 for i = 1:discretize(2)
     % define planar distribution 
     wing.controlPoint(:, i, 1) = linspace(0, wing.chordDistribution(i), discretize(1));
-    wing.controlPoint(:, i, 2) = wing.airfoilCoefficients(1) * sin(1 * pi * linspace(0, wing.chordDistribution(i), discretize(1))) ...
-        + wing.airfoilCoefficients(2) * sin(2 * pi * linspace(0, wing.chordDistribution(i), discretize(1)))  ...
-        + wing.airfoilCoefficients(3) * sin(3 * pi * linspace(0, wing.chordDistribution(i), discretize(1)));
-
+    wing.controlPoint(:, i, 2) = findY(wing.airfoilCoefficients, wing.chordDistribution(i), discretize);
     wing.controlPoint(:, i, 3) = x(i) * wing.span * cos(wing.dihedral) * cos(wing.sweep);
 
 
@@ -31,7 +27,7 @@ wing.controlPoint(:, :, 2) = wing.controlPoint(:, :, 2) + abs(wing.controlPoint(
 
 % fancy plots to check wing shape
 % scatterControlPoints(wing)
-% plotWingSurface(wing)
+ plotWingSurface(wing)
 
 %% Normal vector 
 
@@ -41,11 +37,9 @@ wing.normal(:,:, 1) = ones(discretize(1), discretize(2));
 
 % We may now take advantage of the sine series description of the mean
 % line. x-derivative will be obtained analytically.
-yPrime = zeros(discretize(2), 1);
+yPrime = zeros(discretize(1), discretize(2));
 for i = 1:discretize(2)
-    yPrime(i) = wing.airfoilCoefficients(1) * sin(1 * pi * linspace(0, wing.chordDistribution(i), discretize(1))) ...
-        + wing.airfoilCoefficients(2) * sin(2 * pi * linspace(0, wing.chordDistribution(i), discretize(1))) * 2 * pi  ...
-        + wing.airfoilCoefficients(3) * sin(3 * pi * linspace(0, wing.chordDistribution(i), discretize(1))) * 3 * pi;
+    yPrime(:, i) = findYPrime(wing.airfoilCoefficients, wing.chordDistribution(i), discretize);
 end
 
 
@@ -54,18 +48,29 @@ end
 
 
 
-
 %% functions
-function scatterControlPoints(wing)
-% SCATTERCONTROLPOINTS Visualizes the 3D control points of a wing
-%
-% This function takes the wing structure containing the control points 
-% and plots them in 3D space using a scatter plot.
-%
-% Inputs:
-%   - wing: A structure with a field `controlPoint`, which is a 3D array 
-%           of dimensions [N_chord x N_span x 3], representing the 
-%           coordinates of control points in 3D space.
+    function y = findY(airfoilCoefficients, chordDistribution, discretize)
+        y = airfoilCoefficients(1) * sin(1 * pi * linspace(0, chordDistribution, discretize(1))) ...
+            + airfoilCoefficients(2) * sin(2 * pi * linspace(0, chordDistribution, discretize(1)))  ...
+            + airfoilCoefficients(3) * sin(3 * pi * linspace(0, chordDistribution, discretize(1)));
+    end
+
+    function yPrime = findYPrime(airfoilCoefficients, chordDistribution, discretize)
+        yPrime = airfoilCoefficients(1) * cos(1 * pi * linspace(0, chordDistribution, discretize(1))) * 1 * pi ...
+            + airfoilCoefficients(2) * cos(2 * pi * linspace(0, chordDistribution, discretize(1))) * 2 * pi ...
+            + airfoilCoefficients(3) * cos(3 * pi * linspace(0, chordDistribution, discretize(1))) * 3 * pi;
+    end
+
+    function scatterControlPoints(wing)
+        % SCATTERCONTROLPOINTS Visualizes the 3D control points of a wing
+        %
+        % This function takes the wing structure containing the control points
+        % and plots them in 3D space using a scatter plot.
+        %
+        % Inputs:
+        %   - wing: A structure with a field `controlPoint`, which is a 3D array
+        %           of dimensions [N_chord x N_span x 3], representing the
+        %           coordinates of control points in 3D space.
 
     % Extract control points
     % `controlPoint` is a 3D array: [x, y, z] for each control point
