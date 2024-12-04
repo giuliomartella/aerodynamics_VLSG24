@@ -10,7 +10,7 @@ addpath mat_functions/airfoils/
 %% Input
 
 U_inf = 1;  % Velocità all'infinito [m/s]
-alpha = -1.22;   % Angolo di incidenza [°]
+alpha = -1.984;   % Angolo di incidenza [°]
 U_inf_x = U_inf * cos(deg2rad(alpha));
 U_inf_y = U_inf * sin(deg2rad(alpha));
 
@@ -20,9 +20,9 @@ U_inf_normal = U_inf_normal ./ norm(U_inf_normal);
 
 TestCase = 0;
 
-nomeProfilo = 'k2';
+CodiceProfilo = '0012';
 Chord = 1;
-NPannelli = 177;
+NPannelli = 101;
 
 LE_X_Position = 0;
 LE_Y_Position = 0;
@@ -32,7 +32,7 @@ LE_Y_Position = 0;
 % numero profilo:
 % [x,y]=createProfile(CodiceProfilo,NPannelli,Chord);
 
-Corpo = importXfoilProfile(strcat(nomeProfilo, '.dat'));
+Corpo = importXfoilProfile(strcat('NACA_', CodiceProfilo, '.dat'));
 % Prima flippa i vettori
 x = flipud(Corpo.x);
 y = flipud(Corpo.y);
@@ -196,6 +196,16 @@ plot(x(1:end-1), -cp)
 grid on
 
 
-%%
-
-
+%% calcolo coeff. portanza e coeff. momento
+circ=sum(velPannelli.*lunghezza(1:NPannelli)'); %circolazione
+cl=zeros(1,NPannelli);
+cm=zeros(1,NPannelli);      
+for i=1:NPannelli
+    cl(i)=cos(deg2rad(-1.984))*(-cp(i)*lunghezza(i)*Normale(i,2))-sin(deg2rad(-1.984))*(-cp(i)*lunghezza(i)*(Normale(i,1)));
+end
+CL=sum(cl);
+CL_kj=2*circ;   %CL con formula Kutta-Joukowsky
+for i=1:NPannelli
+    cm(i)=cp(i)*(Centro(i,1)-0.25)*lunghezza(i)*Normale(i,2);
+end
+Cm=sum(cm);     %Cm rispetto al centro aerodinamico
