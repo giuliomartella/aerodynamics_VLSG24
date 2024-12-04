@@ -9,7 +9,11 @@ clc
 
 
 %load("alfa_cp/cpData.mat");
-load("cpData.mat");
+if ismac
+    load("alfa_cp\cpData.mat");
+else
+    load("alfa_cp/cpData.mat");
+end
 
 % Finding indexes of leading edge and trailing edge
 ba = find(~cpData.Points(:,1));
