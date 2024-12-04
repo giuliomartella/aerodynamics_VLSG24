@@ -10,7 +10,7 @@ addpath mat_functions/airfoils/
 %% Input
 
 U_inf = 1;  % Velocità all'infinito [m/s]
-alpha = 1;   % Angolo di incidenza [°]
+alpha = -1.22;   % Angolo di incidenza [°]
 U_inf_x = U_inf * cos(deg2rad(alpha));
 U_inf_y = U_inf * sin(deg2rad(alpha));
 
@@ -20,9 +20,9 @@ U_inf_normal = U_inf_normal ./ norm(U_inf_normal);
 
 TestCase = 0;
 
-CodiceProfilo = '0012';
+nomeProfilo = 'k2';
 Chord = 1;
-NPannelli = 101;
+NPannelli = 177;
 
 LE_X_Position = 0;
 LE_Y_Position = 0;
@@ -32,7 +32,7 @@ LE_Y_Position = 0;
 % numero profilo:
 % [x,y]=createProfile(CodiceProfilo,NPannelli,Chord);
 
-Corpo = importXfoilProfile(strcat('NACA_', CodiceProfilo, '.dat'));
+Corpo = importXfoilProfile(strcat(nomeProfilo, '.dat'));
 % Prima flippa i vettori
 x = flipud(Corpo.x);
 y = flipud(Corpo.y);
