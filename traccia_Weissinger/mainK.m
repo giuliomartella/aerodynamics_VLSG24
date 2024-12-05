@@ -14,7 +14,7 @@ wing.ID = 1;
 wing.xOffset = [0.0; 0.0; 0.0];
 wing.rootChord = 1.0;
 wing.span = 10.0;
-wing.dihedral = deg2rad(20.0);
+wing.dihedral = deg2rad(2.0);
 wing.sweep = deg2rad(5.0);
 wing.taper = 0.5;
 wing.twistPrime = deg2rad(20);
@@ -31,7 +31,7 @@ wing.S = wing.MGC * wing.span;
 wing.AR = wing.span^2 / wing.S;
 
 % define precision
-wing.discretize = [10; 15]; % singularities in [chord direction; spanwise direction]
+wing.discretize = [20; 50]; % singularities in [chord direction; spanwise direction]
 
 
 tic

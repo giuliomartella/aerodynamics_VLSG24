@@ -54,12 +54,26 @@ wing.normal(:, :, 3) = sin(wing.dihedral) .* repmat(sign(-s(:))', size(wing.norm
 
 %% Vortices defining vertex positions
 % VFL: vertex forward left
-% VBR: verex backward right
+% VBR: vertex backward right
 % For simplicity and cost effctiveness vortex position is shaped on
 % linearized mean line
+spanwiseDelta = wing.span / wing.discretize(2) / 2.0; % scalar
+addSpanDelta = zeros(wing.discretize(1), wing.discretize(2), 3);
+addSpanDelta(:, :, 3) = ones(wing.discretize') * spanwiseDelta;
 
+chordwiseDelta = wing.chordDistribution / wing.discretize(1) * 0.25; % vector
+addChordDelta = zeros(wing.discretize(1), wing.discretize(2), 3);
+addChordDelta(:, :, 1) = repmat(chordwiseDelta, wing.discretize(1), 1);
 
+wing.VFL = wing.controlPoint + addChordDelta - addSpanDelta;
+wing.VFR = wing.controlPoint + addChordDelta + addSpanDelta;
 
+addChordDelta(:, :, 1) = wing.span * 1e2;
+
+wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta;
+wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
+
+plotWingWithVortices(wing)
 
 
 
@@ -222,5 +236,69 @@ function plotWingNormals(wing)
 
     hold off;
 end
+
+function plotWingWithVortices(wing)
+% PLOTWINGWITHVORTICES Visualizes the wing surface and vortex vertices in 3D
+%
+% This function creates a 3D representation of the wing by plotting
+% the control points as a continuous surface and overlays the vortex 
+% vertices (VFL, VFR, VBL, VBR) as scatter points.
+%
+% Inputs:
+%   - wing: A structure with fields:
+%       * controlPoint: 3D array of control points [N_chord x N_span x 3]
+%       * VFL, VFR, VBL, VBR: 3D arrays of vortex vertices 
+%                             [N_chord x N_span x 3]
+
+    % Extract control points
+    controlPoints = wing.controlPoint;
+    x = controlPoints(:, :, 1); % Chordwise direction
+    y = controlPoints(:, :, 2); % Vertical displacement (airfoil shape)
+    z = controlPoints(:, :, 3); % Spanwise direction
+
+    % Plot the wing surface
+    figure;
+    surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
+    hold on;
+
+    % Overlay vortex vertices
+    scatterVortexVertices(wing.VFL, 'r', 'VFL');
+    scatterVortexVertices(wing.VFR, 'g', 'VFR');
+    scatterVortexVertices(wing.VBL, 'b', 'VBL');
+    scatterVortexVertices(wing.VBR, 'k', 'VBR');
+
+    % Aesthetic improvements
+    colormap jet; % Use a color map for surface shading
+    colorbar; % Add a color bar to visualize height variation
+    grid on; % Enable grid
+    axis equal; % Use equal scaling for all axes
+    xlabel('Spanwise Direction (Z)'); % Label for x-axis
+    ylabel('Chord Direction (X)'); % Label for y-axis
+    zlabel('Vertical Displacement (Y)'); % Label for z-axis
+    title('3D Wing Surface with Vortex Vertices'); % Plot title
+    view(3); % Set 3D view angle
+
+    hold off;
+
+    % Nested function to scatter vortex vertices
+    function scatterVortexVertices(vertices, color, label)
+        % SCATTERVORTEXVERTICES Plots vortex vertices as scatter points
+        %
+        % Inputs:
+        %   - vertices: 3D array of vertex coordinates [N_chord x N_span x 3]
+        %   - color: Color for the scatter points (e.g., 'r' for red)
+        %   - label: String label for legend (optional)
+
+        % Reshape vertices for scatter plot
+        vx = vertices(:, :, 1); % X-coordinates
+        vy = vertices(:, :, 2); % Y-coordinates
+        vz = vertices(:, :, 3); % Z-coordinates
+
+        scatter3(vz(:), vx(:), vy(:), 20, color, 'filled'); % Scatter points
+        legendEntries = findobj(gca, 'Type', 'scatter');
+        legend(legendEntries, {label}, 'Location', 'best');
+    end
+end
+
 
 end
