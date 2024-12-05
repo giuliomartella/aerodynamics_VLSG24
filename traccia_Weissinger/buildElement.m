@@ -26,9 +26,12 @@ end
 wing.controlPoint(:, :, 1) = wing.controlPoint(:, :, 1) + abs(wing.controlPoint(:, :, 3)) * sin(wing.sweep);
 wing.controlPoint(:, :, 2) = wing.controlPoint(:, :, 2) + abs(wing.controlPoint(:, :, 3)) * sin(wing.dihedral);
 
+% add offset
+wing.controlPoint = wing.controlPoint + reshape(wing.xOffset, 1, 1, 3);
+
 % fancy plots to check wing shape, plot functions are AI generated
-% scatterControlPoints(wing)
-% plotWingSurface(wing)
+ scatterControlPoints(wing)
+ plotWingSurface(wing)
 
 %% Normal vector 
 
@@ -73,7 +76,7 @@ addChordDelta(:, :, 1) = wing.span * 1e2;
 wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta;
 wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 
-plotWingWithVortices(wing)
+ plotWingWithVortices(wing)
 
 
 
@@ -126,7 +129,7 @@ plotWingWithVortices(wing)
     z = z(:); % z-coordinates
 
     % Scatter the control points in 3D space
-    figure; % Open a new figure
+    figure(1); % Open a new figure
     scatter3(x, y, z, 20, 'filled'); % Scatter plot, marker size = 50
     grid on; % Enable grid for better visualization
     axis equal; % Use equal scaling for all axes
@@ -138,6 +141,7 @@ plotWingWithVortices(wing)
     % Add markers or lines to indicate the wing's structure if needed
     % Uncomment the following line to add a connection between points
     % hold on; plot3(x, y, z, 'k-', 'LineWidth', 0.5); % Example connection
+    hold on
 
 end
 
@@ -162,7 +166,7 @@ function plotWingSurface(wing)
     z = controlPoints(:, :, 3); % Spanwise direction
 
     % Plot the surface
-    figure; % Open a new figure
+    figure(2); % Open a new figure
     surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
     % `surf` assumes X, Y, Z -> we map Span (z), Chord (x), Vertical (y)
 
@@ -176,6 +180,7 @@ function plotWingSurface(wing)
     zlabel('Vertical Displacement (Y)'); % Label for z-axis
     title('3D Wing Surface Visualization'); % Plot title
     view(3); % Set 3D view angle
+    hold on
 end
 
 function plotWingNormals(wing)
@@ -202,7 +207,7 @@ function plotWingNormals(wing)
     nz = normals(:, :, 3); % Normal vector Z component
 
     % Plot the wing surface
-    figure;
+    figure(3);
     surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
     hold on;
 
@@ -234,7 +239,6 @@ function plotWingNormals(wing)
     title('3D Wing Surface with Normal Vectors'); % Plot title
     view(3); % Set 3D view angle
 
-    hold off;
 end
 
 function plotWingWithVortices(wing)
@@ -257,7 +261,7 @@ function plotWingWithVortices(wing)
     z = controlPoints(:, :, 3); % Spanwise direction
 
     % Plot the wing surface
-    figure;
+    figure(4);
     surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
     hold on;
 
@@ -278,7 +282,6 @@ function plotWingWithVortices(wing)
     title('3D Wing Surface with Vortex Vertices'); % Plot title
     view(3); % Set 3D view angle
 
-    hold off;
 
     % Nested function to scatter vortex vertices
     function scatterVortexVertices(vertices, color, label)
