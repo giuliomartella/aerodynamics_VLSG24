@@ -1,4 +1,4 @@
-function wing = buildElement(wing, discretize)
+function wing = buildElement(wing)
 % Each aerodynamic surface is described as a vortex distribution. 
 % Airfoils are represented by a sine series
 
@@ -7,17 +7,17 @@ function wing = buildElement(wing, discretize)
 
 
 %% Control Points
-wing.controlPoint = zeros(discretize(1), discretize(2), 3);
-x = linspace(-0.5, 0.5, discretize(2)+1);
-x = x(1: discretize(2)) + 1 / discretize(2) / 2; % abscissa
-wing.chordDistribution = (1- abs(x)/0.5 * wing.taper) * wing.rootChord;
-wing.twistDistribution = wing.twistPrime * abs(x)/0.5;
+wing.controlPoint = zeros(wing.discretize(1), wing.discretize(2), 3);
+s = linspace(-0.5, 0.5, wing.discretize(2)+1);
+s = s(1: wing.discretize(2)) + 1 / wing.discretize(2) / 2; % abscissa
+wing.chordDistribution = (1- abs(s)/0.5 * wing.taper) * wing.rootChord;
+wing.twistDistribution = wing.twistPrime * abs(s)/0.5;
 
-for i = 1:discretize(2)
+for i = 1:wing.discretize(2)
     % define planar distribution 
-    wing.controlPoint(:, i, 1) = linspace(0, wing.chordDistribution(i), discretize(1));
-    wing.controlPoint(:, i, 2) = findY(wing.airfoilCoefficients, wing.chordDistribution(i), wing.twistDistribution(i), discretize);
-    wing.controlPoint(:, i, 3) = x(i) * wing.span * cos(wing.dihedral) * cos(wing.sweep);
+    wing.controlPoint(:, i, 1) = linspace(wing.chordDistribution(i) / wing.discretize(1) * 0.75, wing.chordDistribution(i) * (1 - 1 / wing.discretize(1) * 0.25), wing.discretize(1));
+    wing.controlPoint(:, i, 2) = findY(wing.airfoilCoefficients, wing.chordDistribution(i), wing.twistDistribution(i), wing.controlPoint(:, i, 1));
+    wing.controlPoint(:, i, 3) = s(i) * wing.span * cos(wing.dihedral) * cos(wing.sweep);
 
 
 end
@@ -28,18 +28,18 @@ wing.controlPoint(:, :, 2) = wing.controlPoint(:, :, 2) + abs(wing.controlPoint(
 
 % fancy plots to check wing shape, plot functions are AI generated
 % scatterControlPoints(wing)
- plotWingSurface(wing)
+% plotWingSurface(wing)
 
 %% Normal vector 
 
 
-wing.normal = zeros(discretize(1), discretize(2), 3);
+wing.normal = zeros(wing.discretize(1), wing.discretize(2), 3);
 
 % We may now take advantage of the sine series description of the mean
 % line. x-derivative will be obtained analytically.
-yPrime = zeros(discretize(1), discretize(2));
-for i = 1:discretize(2)
-    yPrime(:, i) = findYPrime(wing.airfoilCoefficients, wing.chordDistribution(i), wing.twistDistribution(i), discretize);
+yPrime = zeros(wing.discretize(1), wing.discretize(2));
+for i = 1:wing.discretize(2)
+    yPrime(:, i) = findYPrime(wing.airfoilCoefficients, wing.chordDistribution(i), wing.twistDistribution(i), wing.controlPoint(:, i, 1));
 end
 % Before considering dihedral effect the tangent versor is tau =
 % [1; yPrime], so the normal is n = [-yPrime; 1]
@@ -47,9 +47,16 @@ wing.normal(:,:, 1) = - yPrime ./ sqrt(yPrime.^2 +1) * cos(wing.dihedral);
 wing.normal(:,:, 2) = 1 ./ sqrt(yPrime.^2 +1) * cos(wing.dihedral);
 
 % Now consider dihedral
-wing.normal(:,:, 3) = sin(wing.dihedral) .* sign(- x);
+wing.normal(:, :, 3) = sin(wing.dihedral) .* repmat(sign(-s(:))', size(wing.normal, 1), 1);
 
-plotWingNormals(wing)
+
+ plotWingNormals(wing)
+
+%% Vortices defining vertex positions
+% VFL: vertex forward left
+% VBR: verex backward right
+% For simplicity and cost effctiveness vortex position is shaped on
+% linearized mean line
 
 
 
@@ -59,22 +66,22 @@ plotWingNormals(wing)
 
 
 %% functions
-    function y = findY(airfoilCoefficients, chordDistribution, twist, discretize)
-        s = linspace(0, chordDistribution, discretize(1));
-        y = airfoilCoefficients(1) * sin(1 * pi * s) ...
-            + airfoilCoefficients(2) * sin(2 * pi * s)  ...
-            + airfoilCoefficients(3) * sin(3 * pi * s);
-        twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [s; y];
+    function y = findY(airfoilCoefficients, chord, twist, cp)
+        sD = cp ./ chord; % s dummy
+        y = airfoilCoefficients(1) * sin(1 * pi * sD) ...
+            + airfoilCoefficients(2) * sin(2 * pi * sD)  ...
+            + airfoilCoefficients(3) * sin(3 * pi * sD);
+        twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [sD, y]';
         y = twisted(2, :);
 
     end
 
-    function yPrime = findYPrime(airfoilCoefficients, chordDistribution, twist, discretize)
-        s = linspace(0, chordDistribution, discretize(1));
-        yPrime = airfoilCoefficients(1) * cos(1 * pi * s) * 1 * pi ...
-            + airfoilCoefficients(2) * cos(2 * pi * s) * 2 * pi ...
-            + airfoilCoefficients(3) * cos(3 * pi * s) * 3 * pi;
-        twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [s; yPrime];
+    function yPrime = findYPrime(airfoilCoefficients, chord, twist, cp)
+        sD = cp ./ chord; % s dummy
+        yPrime = airfoilCoefficients(1) * cos(1 * pi * sD) * 1 * pi ...
+            + airfoilCoefficients(2) * cos(2 * pi * sD) * 2 * pi ...
+            + airfoilCoefficients(3) * cos(3 * pi * sD) * 3 * pi;
+        twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [sD, yPrime]';
         yPrime = twisted(2, :);
     end
 

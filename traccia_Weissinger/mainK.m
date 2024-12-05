@@ -1,9 +1,6 @@
 clear; clc; close all
 % K stands for KISS: "keep it simple and straight forward"
 
-% define precision
-discretize = [10; 15]; % singularities in [chord direction; spanwise direction]
-
 
 
 %% Define element parametrically
@@ -17,7 +14,7 @@ wing.ID = 1;
 wing.xOffset = [0.0; 0.0; 0.0];
 wing.rootChord = 1.0;
 wing.span = 10.0;
-wing.dihedral = deg2rad(2.0);
+wing.dihedral = deg2rad(20.0);
 wing.sweep = deg2rad(5.0);
 wing.taper = 0.5;
 wing.twistPrime = deg2rad(20);
@@ -33,6 +30,12 @@ wing.MGC = (wing.rootChord + wing.tipChord) / 2.0; % Mean Geometric Chord
 wing.S = wing.MGC * wing.span;
 wing.AR = wing.span^2 / wing.S;
 
-wing = buildElement(wing, discretize);
+% define precision
+wing.discretize = [10; 15]; % singularities in [chord direction; spanwise direction]
+
+
+tic
+wing = buildElement(wing);
+t = toc
 
 
