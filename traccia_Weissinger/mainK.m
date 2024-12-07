@@ -2,7 +2,6 @@ clear; clc; close all
 % K stands for KISS: "keep it simple and straight forward"
 
 
-
 %% Define element parametrically
 % Sweep and Dihedral angles are spanwise constant and use leading edge as
 % reference. Taper ratio is spanwise constant and defined as TR =
@@ -42,7 +41,7 @@ tail.span = 3.0;
 tail.dihedral = deg2rad(0.0);
 tail.sweep = deg2rad(5.0);
 tail.taper = 0.5;
-tail.twistPrime = deg2rad(5);
+tail.twistPrime = deg2rad(2);
 % airfoils are described by a fitting of the mean line over three sine
 % functions y = A*sin(pi *x) + B*sin(2pi *x) + C*sin(3pi *x), this can be
 % easily changed with real airfoil mean line points,
@@ -64,14 +63,22 @@ tic
 wing = buildElement(wing);
 tail = buildElement(tail);
 
-elapsedTime = toc;
-disp(['Elapsed time for construction: ', num2str(elapsedTime), ' seconds.']);
+elapsedTime0 = toc;
+disp(['Elapsed time for construction: ', num2str(elapsedTime0), ' seconds.']);
+
+
+%% Define far field conditions
+uInf = [1.0; 0.0; 0.0];
+alpha = deg2rad(2.0);
+uInf = [cos(alpha), -sin(alpha), 0; sin(alpha), cos(alpha), 0; 0, 0, 1] * uInf;
+
 
 
 %% Build Linear System
 
-
-
+gamma = buildLinearSystem(uInf, wing, tail);
+elapsedTime1 = toc;
+disp(['Elapsed time for solving linear system: ', num2str(elapsedTime1 - elapsedTime0), ' seconds.']);
 
 
 

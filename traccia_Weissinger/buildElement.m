@@ -1,6 +1,6 @@
 function wing = buildElement(wing)
 % Each aerodynamic surface is described as a vortex distribution. 
-% Airfoils are represented by a sine series
+% Airfoils are represented by a sine series.
 
 % singularities in [chord direction; spanwise direction]
 
@@ -30,8 +30,8 @@ wing.controlPoint(:, :, 2) = wing.controlPoint(:, :, 2) + abs(wing.controlPoint(
 wing.controlPoint = wing.controlPoint + reshape(wing.xOffset, 1, 1, 3);
 
 % fancy plots to check wing shape, plot functions are AI generated
- scatterControlPoints(wing)
- plotWingSurface(wing)
+% scatterControlPoints(wing)
+% plotWingSurface(wing)
 
 %% Normal vector 
 
@@ -53,7 +53,7 @@ wing.normal(:,:, 2) = 1 ./ sqrt(yPrime.^2 +1) * cos(wing.dihedral);
 wing.normal(:, :, 3) = sin(wing.dihedral) .* repmat(sign(-s(:))', size(wing.normal, 1), 1);
 
 
- plotWingNormals(wing)
+% plotWingNormals(wing)
 
 %% Vortices defining vertex positions
 % VFL: vertex forward left
@@ -71,12 +71,13 @@ addChordDelta(:, :, 1) = repmat(chordwiseDelta, wing.discretize(1), 1);
 wing.VFL = wing.controlPoint + addChordDelta - addSpanDelta;
 wing.VFR = wing.controlPoint + addChordDelta + addSpanDelta;
 
-addChordDelta(:, :, 1) = wing.span * 1e2;
+% Building the linear system the scrpit will add a distance in uInf
+% direction.
 
 wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta;
 wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 
- plotWingWithVortices(wing)
+% plotWingWithVortices(wing)
 
 
 
@@ -101,6 +102,8 @@ wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
         twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [sD, yPrime]';
         yPrime = twisted(2, :);
     end
+
+%% plot functions
 
     function scatterControlPoints(wing)
         % SCATTERCONTROLPOINTS Visualizes the 3D control points of a wing
@@ -298,8 +301,6 @@ function plotWingWithVortices(wing)
         vz = vertices(:, :, 3); % Z-coordinates
 
         scatter3(vz(:), vx(:), vy(:), 20, color, 'filled'); % Scatter points
-        legendEntries = findobj(gca, 'Type', 'scatter');
-        legend(legendEntries, {label}, 'Location', 'best');
     end
 end
 
