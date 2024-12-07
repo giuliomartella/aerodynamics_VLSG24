@@ -53,7 +53,7 @@ wing.normal(:,:, 2) = 1 ./ sqrt(yPrime.^2 +1) * cos(wing.dihedral);
 wing.normal(:, :, 3) = sin(wing.dihedral) .* repmat(sign(-s(:))', size(wing.normal, 1), 1);
 
 
-% plotWingNormals(wing)
+ plotWingNormals(wing)
 
 %% Vortices defining vertex positions
 % VFL: vertex forward left

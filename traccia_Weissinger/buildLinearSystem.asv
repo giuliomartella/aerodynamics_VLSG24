@@ -7,8 +7,8 @@ rCP = reshape(wing.controlPoint, [], 3);
 normal = reshape(wing.normal, [], 3); 
 VFL = reshape(wing.VFL, [], 3); 
 VFR = reshape(wing.VFR, [], 3); 
-VBL = reshape(wing.VFL, [], 3); 
-VBR = reshape(wing.VFL, [], 3);
+VBL = reshape(wing.VBL, [], 3); 
+VBR = reshape(wing.VBR, [], 3);
 
 
 if nargin == 2
@@ -46,6 +46,7 @@ VBR = VBR + repmat(uInf', N, 1) * 1e3;
 %% Gamma Matrix
 A = zeros(N);
 b = zeros(N, 1);
+deltaZ = zeros(N, 1);
 for j = 1:N
     for k = 1:N
         qLeft = q(VFL(j,:) - VBL(j,:), rCP(k,:) - VBL(j,:), rCP(k,:) - VFL(j,:));
@@ -54,6 +55,7 @@ for j = 1:N
 
         A(j, k) = dot(qLeft + qForward + qRight, normal(k,:));
     end
+    deltaZ(j) = norm(VFL(j,:) - VFR(j,:));
 end
 
 for k = 1:N
@@ -64,7 +66,23 @@ gamma = A\b;
 
 
 
-
+%% Split gamma and deltaZ into wing and tail parts, keeping 2D matrices
+if tailFlag
+    % Split results into wing and tail sections
+    numWingPoints = prod(wing.discretize);  
+    numTailPoints = prod(tail.discretize);  
+    
+    % Reshape gamma and deltaZ into 2D matrices for wing and tail
+    wing.gamma = reshape(gamma(1:numWingPoints), spanwiseWing, chordwiseWing);  
+    wing.deltaZ = reshape(deltaZ(1:numWingPoints), spanwiseWing, chordwiseWing);  
+    
+    tail.gamma = reshape(gamma(numWingPoints + 1:end), spanwiseTail, chordwiseTail);  
+    tail.deltaZ = reshape(deltaZ(numWingPoints + 1:end), spanwiseTail, chordwiseTail);  
+else
+    % If no tail, just reshape for wing
+    wing.gamma = reshape(gamma, spanwiseWing, chordwiseWing);  
+    wing.deltaZ = reshape(deltaZ, spanwiseWing, chordwiseWing);  
+end
 
 
 end

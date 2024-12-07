@@ -42,9 +42,6 @@ tail.dihedral = deg2rad(0.0);
 tail.sweep = deg2rad(5.0);
 tail.taper = 0.5;
 tail.twistPrime = deg2rad(2);
-% airfoils are described by a fitting of the mean line over three sine
-% functions y = A*sin(pi *x) + B*sin(2pi *x) + C*sin(3pi *x), this can be
-% easily changed with real airfoil mean line points,
 tail.airfoilCoefficients = [0.0; 0.0; 0.0];
 
 
@@ -60,8 +57,8 @@ tail.discretize = [5; 10]; % singularities in [chord direction; spanwise directi
 
 %% Build Elements
 tic
-wing = buildElement(wing, uInf);
-tail = buildElement(tail, uInf);
+wing = buildElement(wing);
+tail = buildElement(tail);
 
 elapsedTime0 = toc;
 disp(['Elapsed time for construction: ', num2str(elapsedTime0), ' seconds.']);
@@ -69,16 +66,22 @@ disp(['Elapsed time for construction: ', num2str(elapsedTime0), ' seconds.']);
 
 %% Define far field conditions
 uInf = [1.0; 0.0; 0.0];
-alpha = deg2rad(2.0);
+alpha = deg2rad(1.0);
 uInf = [cos(alpha), -sin(alpha), 0; sin(alpha), cos(alpha), 0; 0, 0, 1] * uInf;
 
 
 
 %% Build Linear System
 
-gamma = buildLinearSystem(uInf, wing, tail);
+[wing, tail] = buildLinearSystem(uInf, wing, tail);
 elapsedTime1 = toc;
 disp(['Elapsed time for solving linear system: ', num2str(elapsedTime1 - elapsedTime0), ' seconds.']);
+
+%% Circulation, Lift, Drag
+
+wing = postprocessing(wing);
+tail = postprocessing(tail);
+wing.cL
 
 
 
