@@ -14,12 +14,11 @@ wing.xOffset = [0.0; 0.0; 0.0];
 wing.rootChord = 1.0;
 wing.span = 10.0;
 wing.dihedral = deg2rad(2.0);
-wing.sweep = deg2rad(0.0);
+wing.sweep = deg2rad(5.0);
 wing.taper = 0.5;
-wing.twistPrime = deg2rad(2);
-% airfoils are described by a fitting of the mean line over three sine
-% functions y = A*sin(pi *x) + B*sin(2pi *x) + C*sin(3pi *x), this can be
-% easily changed with real airfoil mean line points,
+wing.twistPrime = deg2rad(3);
+% airfoils are described by a fitting of the mean line over a second order
+% polynomial
 wing.airfoilCoefficients = [0.0; 0.0; 0.0];
 
 
@@ -30,7 +29,7 @@ wing.S = wing.MGC * wing.span;
 wing.AR = wing.span^2 / wing.S;
 
 % define precision
-wing.discretize = [10; 30]; % singularities in [chord direction; spanwise direction]
+wing.discretize = [10; 40]; % singularities in [chord direction; spanwise direction]
 
 
 % data
@@ -88,7 +87,7 @@ disp(['Elapsed time for solving linear system: ', num2str(elapsedTime1 - elapsed
 
 elapsedTime2 = toc;
 
-alpha_range = deg2rad(-1:0.5:1);  
+alpha_range = deg2rad(-5:2:14);  
 cl_values_wing = zeros(size(alpha_range));
 cl_values_tail = zeros(size(alpha_range));
 cl2d_wing = zeros(length(alpha_range), wing.discretize(2));  

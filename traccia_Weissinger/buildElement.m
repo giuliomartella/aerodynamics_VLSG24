@@ -1,6 +1,6 @@
 function wing = buildElement(wing)
 % Each aerodynamic surface is described as a vortex distribution. 
-% Airfoils are represented by a sine series.
+% Airfoils are represented by a second order polynomial.
 
 % singularities in [chord direction; spanwise direction]
 
@@ -86,9 +86,7 @@ wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 %% functions
     function y = findY(airfoilCoefficients, chord, twist, cp)
         sD = cp ./ chord; % s dummy
-        y = airfoilCoefficients(1) * sin(1 * pi * sD) ...
-            + airfoilCoefficients(2) * sin(2 * pi * sD)  ...
-            + airfoilCoefficients(3) * sin(3 * pi * sD);
+        y = polyval(airfoilCoefficients, sD);
         twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [sD, y]';
         y = twisted(2, :);
 
@@ -96,9 +94,7 @@ wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 
     function yPrime = findYPrime(airfoilCoefficients, chord, twist, cp)
         sD = cp ./ chord; % s dummy
-        yPrime = airfoilCoefficients(1) * cos(1 * pi * sD) * 1 * pi ...
-            + airfoilCoefficients(2) * cos(2 * pi * sD) * 2 * pi ...
-            + airfoilCoefficients(3) * cos(3 * pi * sD) * 3 * pi;
+        yPrime =  polyval(polyder(airfoilCoefficients), sD);
         twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [sD, yPrime]';
         yPrime = twisted(2, :);
     end
