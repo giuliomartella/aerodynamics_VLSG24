@@ -1,4 +1,4 @@
-function wing = buildElement(wing)
+function wing = buildElement(wing, plotFlag)
 % Each aerodynamic surface is described as a vortex distribution. 
 % Airfoils are represented by a second order polynomial.
 
@@ -13,25 +13,30 @@ s = s(1: wing.discretize(2)) + 1 / wing.discretize(2) / 2; % abscissa
 wing.chordDistribution = (1- abs(s)/0.5 * wing.taper) * wing.rootChord;
 wing.twistDistribution = wing.twistPrime * abs(s)/0.5;
 
+wing.quarter = zeros(wing.discretize(2), 3);
+wing.quarter(:, 1) = wing.chordDistribution * 0.25;
+wing.quarter(:, 3) = s * wing.span * cos(wing.dihedral) * cos(wing.sweep);
+
 for i = 1:wing.discretize(2)
     % define planar distribution 
     wing.controlPoint(:, i, 1) = linspace(wing.chordDistribution(i) / wing.discretize(1) * 0.75, wing.chordDistribution(i) * (1 - 1 / wing.discretize(1) * 0.25), wing.discretize(1));
     wing.controlPoint(:, i, 2) = findY(wing.airfoilCoefficients, wing.chordDistribution(i), wing.twistDistribution(i), wing.controlPoint(:, i, 1));
     wing.controlPoint(:, i, 3) = s(i) * wing.span * cos(wing.dihedral) * cos(wing.sweep);
 
-
+    wing.quarter(:, 2) = findY(wing.airfoilCoefficients, wing.chordDistribution(i), wing.twistDistribution(i), wing.quarter(i, 1));
 end
 
 % add third dimension to x and y
 wing.controlPoint(:, :, 1) = wing.controlPoint(:, :, 1) + abs(wing.controlPoint(:, :, 3)) * sin(wing.sweep);
 wing.controlPoint(:, :, 2) = wing.controlPoint(:, :, 2) + abs(wing.controlPoint(:, :, 3)) * sin(wing.dihedral);
+wing.quarter(:, 1) =  wing.quarter(:, 1) + abs(wing.quarter(:, 3)) * sin(wing.sweep);
+wing.quarter(:, 2) =  wing.quarter(:, 2) + abs(wing.quarter(:, 3)) * sin(wing.dihedral);
 
 % add offset
 wing.controlPoint = wing.controlPoint + reshape(wing.xOffset, 1, 1, 3);
+wing.quarter = wing.quarter + reshape(wing.xOffset, 1, 1, 3);
 
-% fancy plots to check wing shape, plot functions are AI generated
-% scatterControlPoints(wing)
-% plotWingSurface(wing)
+
 
 %% Normal vector 
 
@@ -52,8 +57,6 @@ wing.normal(:,:, 2) = 1 ./ sqrt(yPrime.^2 +1) * cos(wing.dihedral);
 % Now consider dihedral
 wing.normal(:, :, 3) = sin(wing.dihedral) .* repmat(sign(-s(:))', size(wing.normal, 1), 1);
 
-
- plotWingNormals(wing)
 
 %% Vortices defining vertex positions
 % VFL: vertex forward left
@@ -77,7 +80,7 @@ wing.VFR = wing.controlPoint + addChordDelta + addSpanDelta;
 wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta;
 wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 
-% plotWingWithVortices(wing)
+
 
 
 
@@ -86,9 +89,7 @@ wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 %% functions
     function y = findY(airfoilCoefficients, chord, twist, cp)
         sD = cp ./ chord; % s dummy
-        y = airfoilCoefficients(1) * sin(1 * pi * sD) ...
-            + airfoilCoefficients(2) * sin(2 * pi * sD)  ...
-            + airfoilCoefficients(3) * sin(3 * pi * sD);
+        y = polyval(airfoilCoefficients, sD);
         twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [sD, y]';
         y = twisted(2, :);
 
@@ -96,14 +97,19 @@ wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 
     function yPrime = findYPrime(airfoilCoefficients, chord, twist, cp)
         sD = cp ./ chord; % s dummy
-        yPrime = airfoilCoefficients(1) * cos(1 * pi * sD) * 1 * pi ...
-            + airfoilCoefficients(2) * cos(2 * pi * sD) * 2 * pi ...
-            + airfoilCoefficients(3) * cos(3 * pi * sD) * 3 * pi;
+        yPrime =  polyval(polyder(airfoilCoefficients), sD);
         twisted = [cos(twist), -sin(twist); sin(twist), cos(twist)] * [sD, yPrime]';
         yPrime = twisted(2, :);
     end
 
 %% plot functions
+% fancy plots to check wing shape, plot functions are AI generated
+if plotFlag
+    plotWingNormals(wing)
+    scatterControlPoints(wing)
+    plotWingSurface(wing)
+    plotWingWithVortices(wing)
+end
 
     function scatterControlPoints(wing)
         % SCATTERCONTROLPOINTS Visualizes the 3D control points of a wing
