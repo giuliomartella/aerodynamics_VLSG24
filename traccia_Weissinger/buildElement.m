@@ -1,4 +1,4 @@
-function wing = buildElement(wing)
+function wing = buildElement(wing, plotFlag)
 % Each aerodynamic surface is described as a vortex distribution. 
 % Airfoils are represented by a second order polynomial.
 
@@ -29,9 +29,7 @@ wing.controlPoint(:, :, 2) = wing.controlPoint(:, :, 2) + abs(wing.controlPoint(
 % add offset
 wing.controlPoint = wing.controlPoint + reshape(wing.xOffset, 1, 1, 3);
 
-% fancy plots to check wing shape, plot functions are AI generated
-% scatterControlPoints(wing)
-% plotWingSurface(wing)
+
 
 %% Normal vector 
 
@@ -52,8 +50,6 @@ wing.normal(:,:, 2) = 1 ./ sqrt(yPrime.^2 +1) * cos(wing.dihedral);
 % Now consider dihedral
 wing.normal(:, :, 3) = sin(wing.dihedral) .* repmat(sign(-s(:))', size(wing.normal, 1), 1);
 
-
- plotWingNormals(wing)
 
 %% Vortices defining vertex positions
 % VFL: vertex forward left
@@ -77,7 +73,7 @@ wing.VFR = wing.controlPoint + addChordDelta + addSpanDelta;
 wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta;
 wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 
-% plotWingWithVortices(wing)
+
 
 
 
@@ -100,6 +96,13 @@ wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
     end
 
 %% plot functions
+% fancy plots to check wing shape, plot functions are AI generated
+if plotFlag
+    plotWingNormals(wing)
+    scatterControlPoints(wing)
+    plotWingSurface(wing)
+    plotWingWithVortices(wing)
+end
 
     function scatterControlPoints(wing)
         % SCATTERCONTROLPOINTS Visualizes the 3D control points of a wing

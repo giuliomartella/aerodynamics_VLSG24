@@ -52,8 +52,8 @@ q = @(r0, r1, r2) ...
 
 
 % Fix Backward Vertices
-VBL = VBL + repmat(uInf', N, 1) * 1e3;
-VBR = VBR + repmat(uInf', N, 1) * 1e3;
+VBL = VBL + repmat(uInf', N, 1) * 1e6;
+VBR = VBR + repmat(uInf', N, 1) * 1e6;
 
 
 %% Gamma Matrix

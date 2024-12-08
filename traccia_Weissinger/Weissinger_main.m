@@ -1,7 +1,7 @@
 close all
 clear all
 clc
-
+tic
 %% Test Case 1
 
 U_Inf_Mag = 1;
@@ -111,7 +111,7 @@ for iCorpo = 1:config.NCorpi
                         
                         % Compute the influence induced by second
                         % semi-infinite vortex
-                        Extreme_1 = Infinit+eVortices{jCorpo}{ChordPanel_j, SpanPanel_j}.Tip.onWing;
+                        Extreme_1 = InfiniteVortices{jCorpo}{ChordPanel_j, SpanPanel_j}.Tip.onWing;
                         Extreme_2 = InfiniteVortices{jCorpo}{ChordPanel_j, SpanPanel_j}.Tip.toInfty;
                         U = U + vortexInfluence(ControlPointHere, Extreme_1, Extreme_2);
 
@@ -175,7 +175,7 @@ for iCorpo = 1:config.NCorpi
     end
     
 end
-
+t = toc
 %% Visualization
 
 
