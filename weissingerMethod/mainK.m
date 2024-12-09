@@ -40,7 +40,7 @@ tail.span = 3.0;
 tail.dihedral = deg2rad(0.0);
 tail.sweep = deg2rad(5.0);
 tail.taper = 0.5;
-tail.twistPrime = deg2rad(0);
+tail.twistPrime = deg2rad(0.0);
 tail.airfoilCoefficients = [0.0; 0.0; 0.0];
 
 
@@ -93,6 +93,6 @@ polarPlot(alpha_range, wing, tail);
 % polarPlot(alpha_range, wing);
 
 elapsedTime3 = toc;
-disp(['Elapsed time for computing polars: ', num2str(elapsedTime3 - elapsedTime2), ' seconds.']);
+disp(['Elapsed time for computing polars and plotting: ', num2str(elapsedTime3 - elapsedTime2), ' seconds.']);
 disp(['Average elapsed time for polar point: ', num2str((elapsedTime3 - elapsedTime2)/ length(alpha_range)) , ' seconds.']);
 
