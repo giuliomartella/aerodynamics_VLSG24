@@ -10,7 +10,8 @@ function wing = buildElement(wing, plotFlag)
 wing.controlPoint = zeros(wing.discretize(1), wing.discretize(2), 3);
 s = linspace(-0.5, 0.5, wing.discretize(2)+1);
 s = s(1: wing.discretize(2)) + 1 / wing.discretize(2) / 2; % abscissa
-wing.chordDistribution = (1- abs(s)/0.5 * wing.taper) * wing.rootChord;
+wing.chordDistribution = (1 - (abs(s)/0.5 - wing.firstTaper) * wing.taper) * wing.rootChord;
+wing.chordDistribution(wing.chordDistribution > wing.rootChord) = wing.rootChord;
 wing.twistDistribution = wing.twistPrime * abs(s)/0.5;
 
 wing.quarter = zeros(wing.discretize(2), 3);
@@ -36,7 +37,7 @@ wing.quarter(:, 2) =  wing.quarter(:, 2) + abs(wing.quarter(:, 3)) * sin(wing.di
 wing.controlPoint = wing.controlPoint + reshape(wing.xOffset, 1, 1, 3);
 wing.quarter = wing.quarter + wing.xOffset';
 
-
+wing.s = s;
 
 %% Normal vector 
 

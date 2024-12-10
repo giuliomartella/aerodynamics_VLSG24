@@ -13,12 +13,12 @@ wing.ID = 1;
 wing.xOffset = [0.0; 0.0; 0.0];
 wing.rootChord = 1.0;
 wing.span = 10.0;
-wing.dihedral = deg2rad(2.0);
-wing.sweep = deg2rad(5.0);
-wing.taper = 0.5;
-wing.twistPrime = deg2rad(3);
-% airfoils are described by a fitting of the mean line over a second order
-% polynomial
+wing.dihedral = deg2rad(0.0);
+wing.sweep = deg2rad(0.0);
+wing.taper = 1.0; % taper ratio
+wing.firstTaper = 0.4; % constant root chord span fraction
+wing.twistPrime = deg2rad(0); % first derivative of twist angle
+% airfoils are described by a fitting of the mean line over a polynomial
 wing.airfoilCoefficients = [0.0; 0.0; 0.0];
 
 
@@ -40,6 +40,7 @@ tail.span = 3.0;
 tail.dihedral = deg2rad(0.0);
 tail.sweep = deg2rad(5.0);
 tail.taper = 0.5;
+tail.firstTaper = 0.0;
 tail.twistPrime = deg2rad(0.0);
 tail.airfoilCoefficients = [0.0; 0.0; 0.0];
 
