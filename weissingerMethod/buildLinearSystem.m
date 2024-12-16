@@ -106,7 +106,7 @@ for k = 1:spanN
 end
 
 inducedU = sum(quarterInfluence, 2);
-alphaI = - atan(inducedU ./ norm(uInf))';
+alphaI = atan(inducedU ./ norm(uInf))';
 
 
 %% Split gamma and deltaZ into wing and tail parts, keeping 2D matrices

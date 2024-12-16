@@ -24,7 +24,7 @@ wing.airfoilCoefficients = [0.0; 0.0; 0.0];
 
 % extra
 wing.tipChord = wing.rootChord * wing.taper;
-wing.MGC = (wing.rootChord + wing.tipChord) / 2.0; % Mean Geometric Chord
+wing.MGC = (wing.rootChord + wing.tipChord) / 2.0 * (1 - wing.firstTaper) + wing.rootChord * wing.firstTaper; % Mean Geometric Chord
 wing.S = wing.MGC * wing.span;
 wing.AR = wing.span^2 / wing.S;
 
@@ -47,7 +47,7 @@ tail.airfoilCoefficients = [0.0; 0.0; 0.0];
 
 % extra
 tail.tipChord = tail.rootChord * tail.taper;
-tail.MGC = (tail.rootChord + tail.tipChord) / 2.0; % Mean Geometric Chord
+tail.MGC = (tail.rootChord + tail.tipChord) / 2.0 * (1 - tail.firstTaper) + tail.rootChord * tail.firstTaper; % Mean Geometric Chord
 tail.S = tail.MGC * tail.span;
 tail.AR = tail.span^2 / tail.S;
 

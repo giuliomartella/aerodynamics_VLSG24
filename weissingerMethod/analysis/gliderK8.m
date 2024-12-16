@@ -1,5 +1,5 @@
 clear; clc; close all
-% Analysis of Cessna 172 Skyhawk wing, for method specifications read mainK.m
+% Analysis of Schleicher K glider wing, for method specifications read mainK.m
 
 addpath('../');
 
@@ -9,13 +9,13 @@ addpath('../');
 % data
 wing.ID = 1;
 wing.xOffset = [0.0; 0.0; 0.0];
-wing.rootChord = 1.68;
-wing.span = 11.0;
-wing.dihedral = deg2rad(3.0);
+wing.rootChord = 1.05;
+wing.span = 15.0;
+wing.dihedral = deg2rad(2.0);
 wing.sweep = deg2rad(0.0);
-wing.taper = 0.6369;
-wing.firstTaper = 0.418;
-wing.twistPrime = deg2rad(2);
+wing.taper = 0.3619;
+wing.firstTaper = 0.415;
+wing.twistPrime = deg2rad(0);
 wing.airfoilCoefficients = [0.0; 0.0; 0.0];
 
 
@@ -31,20 +31,20 @@ wing.discretize = [15; 50]; % singularities in [chord direction; spanwise direct
 
 % data
 tail.ID = 2;
-tail.xOffset = [10.0; 0.0; 0.0];
-tail.rootChord = 0.50;
-tail.span = 3.45;
+tail.xOffset = [5.60; 0.0; 0.0];
+tail.rootChord = 0.65;
+tail.span = 3.20;
 tail.dihedral = deg2rad(0.0);
 tail.sweep = deg2rad(0.0);
-tail.taper = 0.4894;
-tail.firstTaper = 0.0;
+tail.taper = 0.4923;
+tail.firstTaper = 0.95;
 tail.twistPrime = deg2rad(0.0);
 tail.airfoilCoefficients = [0.0; 0.0; 0.0];
 
 
 % extra
 tail.tipChord = tail.rootChord * tail.taper;
-tail.MGC = (tail.rootChord + tail.tipChord) / 2.0; % Mean Geometric Chord
+tail.MGC = (tail.rootChord + tail.tipChord) / 2.0 * (1 - tail.firstTaper) + tail.rootChord * tail.firstTaper; % Mean Geometric Chord
 tail.S = tail.MGC * tail.span;
 tail.AR = tail.span^2 / tail.S;
 
@@ -53,7 +53,7 @@ tail.discretize = [5; 10]; % singularities in [chord direction; spanwise directi
 
 
 %% Build Elements
-plotFlag = false;
+plotFlag = true;
 wing = buildElement(wing, plotFlag);
 tail = buildElement(tail, plotFlag);
 
@@ -93,7 +93,7 @@ axis tight;
 % Optional: Add a legend if needed
 legend('Simulation Data', 'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
 
-saveas(gcf, 'cessna_polar_wing.pdf');
+saveas(gcf, 'gliderK8_polar_wing.pdf');
 
 %% Circulation distribution, AoA = 2°
 
@@ -115,6 +115,7 @@ grid on;
 hold on
 plot(s, gammaFit, 'LineWidth', 1.5, 'MarkerSize', 6);
 plot(s, gammaElliptic, 'LineWidth', 1.5, 'MarkerSize', 6);
+scatter([-0.5; 0.5], [0; 0]);
 
 
 % Set labels and title with LaTeX formatting
@@ -128,5 +129,5 @@ axis tight;
 % Optional: Add a legend if needed
 legend('Simulation Data','Sine fitting', 'Elliptic distribution',  'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
 
-saveas(gcf, 'cessna_gamma_distribution.pdf');
+saveas(gcf, 'gliderK8_gamma_distribution.pdf');
 
