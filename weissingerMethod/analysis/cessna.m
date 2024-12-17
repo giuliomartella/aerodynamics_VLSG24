@@ -16,7 +16,7 @@ wing.sweep = deg2rad(0.0);
 wing.taper = 0.6369;
 wing.firstTaper = 0.418;
 wing.twistPrime = deg2rad(2);
-wing.airfoilCoefficients = [0.0; 0.0; 0.0];
+wing.airfoilCoefficients = [17.3648404437696	-87.1283457681812	185.023337210179	-216.177818020936	151.422278341809	-65.2483351673165	17.2902703811582	-2.77635906475406	0.150449092907973	0.0781532987533795	0.00158968881305051];
 
 
 % extra
@@ -58,7 +58,7 @@ wing = buildElement(wing, plotFlag);
 tail = buildElement(tail, plotFlag);
 
 %% Compute 
-alpha_range = deg2rad(-5:4:12);
+alpha_range = deg2rad(-5:2:12);
 cL = zeros(size(alpha_range));
 cD = cL;
 for i = 1:length(alpha_range)
@@ -95,6 +95,24 @@ legend('Simulation Data', 'Interpreter', 'latex', 'FontSize', 12, 'Location', 'b
 
 saveas(gcf, 'cessna_polar_wing.pdf');
 
+%% Cl Alpha
+figure(7);
+plot(rad2deg(alpha_range), cL, '-o', 'LineWidth', 1.5, 'MarkerSize', 6);
+grid on;
+
+% Set labels and title with LaTeX formatting
+xlabel('$C_D$ (AoA)', 'Interpreter', 'latex', 'FontSize', 14);
+ylabel('$C_L$ (Lift Coefficient)', 'Interpreter', 'latex', 'FontSize', 14);
+title('Lift-AoA Polar Curve', 'Interpreter', 'latex', 'FontSize', 16);
+
+% Adjust axis for better visualization
+axis tight;
+
+% Optional: Add a legend if needed
+legend('Simulation Data', 'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
+
+saveas(gcf, 'cessna_alpha.pdf');
+
 %% Circulation distribution, AoA = 2°
 
 N = length(gammaD); % Sine functions number
@@ -109,7 +127,7 @@ a = S \ gammaD; % Fit Coefficients
 gammaFit = S * a;
 gammaElliptic = S(:,1) * a(1);
 
-figure(7);
+figure(8);
 plot(s, gammaD, '-o', 'LineWidth', 1.5, 'MarkerSize', 6);
 grid on;
 hold on

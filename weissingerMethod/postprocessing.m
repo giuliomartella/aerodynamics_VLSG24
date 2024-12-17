@@ -7,7 +7,7 @@ for j = 1:wing.discretize(2)
 end
 
 wing.cL2D = wing.gammaDistribution * cos(wing.dihedral);
-wing.cD2D = wing.cL2D .* sin(- wing.alphaI);
+wing.cD2D = abs(wing.cL2D .* sin(wing.alphaI));
 wing.cL2D = wing.cL2D .* cos(wing.alphaI);
 
 wing.cL = sum(wing.cL2D) / wing.span;
