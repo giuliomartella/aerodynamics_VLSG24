@@ -48,10 +48,10 @@ end
 %% Polar
 cdElliptic = @(cl, AR) cl.^2 / pi / AR; 
 figure(6);
-plot(cD(:, 1), cL(:, 1), 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6);
+plot(cD(:, 1), cL(:, 1), 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6); % cessna
 grid on
 hold on
-plot(cD(:, 2), cL(:, 2), 'ro-', 'LineWidth', 1.5, 'MarkerSize', 6);
+plot(cD(:, 2), cL(:, 2), 'ro-', 'LineWidth', 1.5, 'MarkerSize', 6); % glider
 plot(cdElliptic(linspace(-0.5, 1.3), wingC.AR), linspace(-0.5, 1.3), 'b', 'LineWidth', 0.5);
 plot(cdElliptic(linspace(-0.5, 1.3), wingG.AR), linspace(-0.5, 1.3),'r', 'LineWidth', 0.5);
 plot(cD(:,3), cL(:,3), '--b^', 'LineWidth', 1.5, 'MarkerSize', 6, 'MarkerFaceColor', 'blue'); % Cessna con coda
@@ -69,13 +69,13 @@ axis tight;
 % Optional: Add a legend if needed
 legend('Cessna wing', 'Glider wing', 'Elliptic distribution with Cessna AR ', 'Elliptic distribution with Glider AR ','Cessna with tail', 'Glider with tail', 'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
 
-% saveas(gcf, 'polar.pdf');
+% exportgraphics(gcf, 'polar.pdf', 'ContentType', 'vector');
 
  %% Cl Alpha
 figure(7);
-plot(rad2deg(alpha_range), cL(:,1), '-bo', 'LineWidth', 1.5, 'MarkerSize', 6);
+plot(rad2deg(alpha_range), cL(:,1), '-bo', 'LineWidth', 1.5, 'MarkerSize', 6); % cessna
 hold on
-plot(rad2deg(alpha_range), cL(:,2), '-ro', 'LineWidth', 1.5, 'MarkerSize', 6);
+plot(rad2deg(alpha_range), cL(:,2), '-ro', 'LineWidth', 1.5, 'MarkerSize', 6); % glider
 plot(rad2deg(alpha_range), alpha_range*2*pi, 'g', 'LineWidth', 0.5);
 grid on
 plot(rad2deg(alpha_range), cL(:,3), '--b^', 'LineWidth', 1.5, 'MarkerSize', 6, 'MarkerFaceColor', 'blue'); % Cessna con coda
@@ -93,7 +93,7 @@ axis tight;
 % Add a legend
 legend('Cessna wing','Glider wing', 'Two Dimensional Thin Airfoil','Cessna with tail', 'Glider with tail', 'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
 
-% saveas(gcf, 'cl_alpha.pdf');
+% exportgraphics(gcf, 'cl_alpha.pdf', 'ContentType', 'vector');
 
 %% Circulation distribution, AoA = 3°
 
@@ -123,12 +123,12 @@ a = S \ wingG.gammaDistribution'; % Fit Coefficients
 gammaEllipticG = S(:,1) * a(1);
 
 figure(8);
-plot(wingC.s, wingC.gammaDistribution, '-ro', 'LineWidth', 1.5, 'MarkerSize', 6);
+plot(wingC.s, wingC.gammaDistribution, '-bo', 'LineWidth', 1.5, 'MarkerSize', 6); % cessna
 grid on;
 hold on
-plot(wingG.s, wingG.gammaDistribution, '-bo', 'LineWidth', 1.5, 'MarkerSize', 6);
-plot(wingC.s, gammaEllipticC, '-r', 'LineWidth', 0.5, 'MarkerSize', 6);
-plot(wingG.s, gammaEllipticG, '-b', 'LineWidth', 0.5, 'MarkerSize', 6);
+plot(wingG.s, wingG.gammaDistribution, '-ro', 'LineWidth', 1.5, 'MarkerSize', 6); % glider
+plot(wingC.s, gammaEllipticC, '-b', 'LineWidth', 0.5, 'MarkerSize', 6);
+plot(wingG.s, gammaEllipticG, '-r', 'LineWidth', 0.5, 'MarkerSize', 6);
 scatter([-0.5; 0.5], [0; 0]);
 
 
@@ -143,5 +143,5 @@ axis tight;
 % Optional: Add a legend if needed
 legend('Cessna','Glider', 'Cessna Elliptic distribution','Glider Elliptic distribution',  'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
 
-% saveas(gcf, 'circulation.pdf');
+% exportgraphics(gcf, 'circulation.pdf', 'ContentType', 'vector');
 
