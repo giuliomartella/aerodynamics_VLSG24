@@ -272,7 +272,7 @@ function plotWingWithVortices(wing)
     z = controlPoints(:, :, 3); % Spanwise direction
 
     % Plot the wing surface
-    figure(4);
+    figure(2);
     surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
     hold on;
 

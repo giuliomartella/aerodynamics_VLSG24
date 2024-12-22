@@ -11,11 +11,11 @@ addpath('../'); % load functions
 plotFlag = false;
 wingC = buildElement(wingC, true);
 tailC = buildElement(tailC, plotFlag);
-wingG = buildElement(wingG, plotFlag);
+wingG = buildElement(wingG, false);
 tailG = buildElement(tailG, plotFlag);
 
 %% Compute
-alpha_range = deg2rad(-5:1:12);
+alpha_range = deg2rad(-5:2:12);
 cL = zeros(length(alpha_range), 2);
 cD = cL;
 for i = 1:length(alpha_range)
