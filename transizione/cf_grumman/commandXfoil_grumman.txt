@@ -1,0 +1,123 @@
+load GRUMMAN K-2 AIRFOIL.txt
+ppar
+n 364
+
+
+oper
+visc
+100000
+iter 1000
+r 100000
+vpar
+vacc 0.00001
+vpar
+n 5
+ 
+alfa -1.21
+vplo
+cf
+dump cfr100000a-121n5.txt
+
+alfa 0
+vplo
+cf
+dump cfr100000a0n5.txt
+
+alfa 2
+vplo
+cf
+dump cfr100000a200n5.txt
+
+vpar
+n 9
+ 
+alfa -1.21
+vplo
+cf
+dump cfr100000a-121n9.txt
+
+alfa 0
+vplo
+cf
+dump cfr100000a0n9.txt
+
+alfa 2
+vplo
+cf
+dump cfr100000a200n9.txt
+
+vpar
+n 13
+ 
+alfa -1.21
+vplo
+cf
+dump cfr100000a-121n13.txt
+
+alfa 0
+vplo
+cf
+dump cfr100000a0n13.txt
+
+alfa 2
+vplo
+cf
+dump cfr100000a200n13.txt
+
+r 1000000
+vpar
+vacc 0.00001
+vpar
+n 5
+ 
+alfa -1.21
+vplo
+cf
+dump cfr1000000a-121n5.txt
+
+alfa 0
+vplo
+cf
+dump cfr1000000a0n5.txt
+
+alfa 2
+vplo
+cf
+dump cfr1000000a200n5.txt
+
+vpar
+n 9
+ 
+alfa -1.21
+vplo
+cf
+dump cfr1000000a-121n9.txt
+
+alfa 0
+vplo
+cf
+dump cfr1000000a0n9.txt
+
+alfa 2
+vplo
+cf
+dump cfr1000000a200n9.txt
+
+vpar
+n 13
+ 
+alfa -1.21
+vplo
+cf
+dump cfr1000000a-121n13.txt
+
+alfa 0
+vplo
+cf
+dump cfr1000000a0n13.txt
+
+alfa 2
+vplo
+cf
+dump cfr1000000a200n13.txt
+
