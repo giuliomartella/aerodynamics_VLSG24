@@ -9,7 +9,7 @@ addpath('../'); % load functions
 
 %% Build Elements
 plotFlag = false;
-wingC = buildElement(wingC, plotFlag);
+wingC = buildElement(wingC, true);
 tailC = buildElement(tailC, plotFlag);
 wingG = buildElement(wingG, plotFlag);
 tailG = buildElement(tailG, plotFlag);

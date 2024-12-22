@@ -10,7 +10,8 @@ function wing = buildElement(wing, plotFlag)
 wing.controlPoint = zeros(wing.discretize(1), wing.discretize(2), 3);
 s = linspace(-0.5, 0.5, wing.discretize(2)+1);
 s = s(1: wing.discretize(2)) + 1 / wing.discretize(2) / 2; % abscissa
-wing.chordDistribution = (1- abs(s)/0.5 * wing.taper) * wing.rootChord;
+wing.chordDistribution = (1 - (abs(s)/0.5 - wing.firstTaper) * wing.taper) * wing.rootChord;
+wing.chordDistribution(wing.chordDistribution > wing.rootChord) = wing.rootChord;
 wing.twistDistribution = wing.twistPrime * abs(s)/0.5;
 
 wing.quarter = zeros(wing.discretize(2), 3);
@@ -34,9 +35,9 @@ wing.quarter(:, 2) =  wing.quarter(:, 2) + abs(wing.quarter(:, 3)) * sin(wing.di
 
 % add offset
 wing.controlPoint = wing.controlPoint + reshape(wing.xOffset, 1, 1, 3);
-wing.quarter = wing.quarter + 100*wing.xOffset';
+wing.quarter = wing.quarter + wing.xOffset';
 
-
+wing.s = s;
 
 %% Normal vector 
 
@@ -85,7 +86,10 @@ wing.VFR = wing.controlPoint + addChordDelta + addSpanDelta;
 wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta;
 wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
 
-
+addx = zeros(wing.discretize(1), wing.discretize(2), 3);
+addx(:, :, 3) = ones(wing.discretize') * 1;
+wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta + addx;
+wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta + addx;
 
 
 
@@ -112,6 +116,7 @@ if plotFlag
     scatterControlPoints(wing)
     plotWingSurface(wing)
     plotWingWithVortices(wing)
+    plotQuarterChordWithNormals(wing)
 end
 
     function scatterControlPoints(wing)
@@ -311,6 +316,58 @@ function plotWingWithVortices(wing)
 
         scatter3(vz(:), vx(:), vy(:), 20, color, 'filled'); % Scatter points
     end
+end
+
+
+function plotQuarterChordWithNormals(wing)
+% PLOTQUARTERCHORDWITHNORMALS Visualizes the quarter chord points and their normals in 3D.
+%
+% This function plots the points along the quarter chord line of the wing 
+% surface and overlays the normals as vectors for visualization.
+%
+% Input:
+%   - wing: a structure containing wing geometry data, including:
+%       * wing.xQuarterChord: x-coordinates of the quarter chord points.
+%       * wing.yQuarterChord: y-coordinates of the quarter chord points.
+%       * wing.zQuarterChord: z-coordinates of the quarter chord points.
+%       * wing.normals: a matrix (Nx3) containing normal vectors at each quarter chord point.
+%
+% Example:
+%   plotQuarterChordWithNormals(wing);
+
+    % Extract data from the wing structure
+    xQuarterChord = wing.quarter(:,1);
+    yQuarterChord = wing.quarter(:,2);
+    zQuarterChord = wing.quarter(:,3);
+    normals = wing.quarterNormal;
+
+    % Verify dimensions consistency
+    if length(xQuarterChord) ~= length(yQuarterChord) || length(xQuarterChord) ~= length(zQuarterChord)
+        error('Quarter chord points dimensions are inconsistent.');
+    end
+    if size(normals, 1) ~= length(xQuarterChord) || size(normals, 2) ~= 3
+        error('Normal vectors dimensions are inconsistent.');
+    end
+
+    % Plot quarter chord points
+    figure(5);
+    plot3(xQuarterChord, yQuarterChord, zQuarterChord, 'o-', 'DisplayName', 'Quarter Chord Line');
+    hold on;
+
+    % Add normals to the plot
+    quiver3(xQuarterChord, yQuarterChord, zQuarterChord, ...
+            normals(:,1), normals(:,2), normals(:,3), ...
+            0.5, 'r', 'LineWidth', 1.5, 'DisplayName', 'Normals');
+
+    % Format the plot
+    xlabel('X [m]');
+    ylabel('Y [m]');
+    zlabel('Z [m]');
+    grid on;
+    axis equal;
+    legend('show');
+    title('Quarter Chord Points and Normals');
+
 end
 
 

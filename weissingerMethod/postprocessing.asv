@@ -29,8 +29,8 @@ end
         for j = 1:wing.discretize(2)
             wing.gammaDistribution(j) = sum(wing.gamma(:,j)) ;
         end
-        db = wing.span ./ wing.discretize(2);
-        wing.L2D = wing.gammaDistribution * cos(wing.dihedral) * 1.225 * db;
+        db = wing.span ./ wing.discre
+        wing.L2D = wing.gammaDistribution * cos(wing.dihedral) * 1.225;
         wing.D2D = wing.L2D .* sin(wing.alphaI);
         wing.L2D = wing.L2D .* cos(wing.alphaI);
 
