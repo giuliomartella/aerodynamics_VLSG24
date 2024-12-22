@@ -8,7 +8,7 @@ clc
 
 % IMPORTANTE: 
 % funziona solo se le coppie di coordinate che descrivono il profilo sono
-% divise fra dorso e ventre, prima dorso poi ventre
+% divise fra dorso e ventre, prima dorso (y>0) poi ventre (y<0)
 
 %% CALCOLO DELLA MEAN CAMBER LINE
 
@@ -33,7 +33,7 @@ for k = 1:(length(A)-length(x_dorso))
 end
 
 % Interpolazione per ottenere la camber line
-n = 364;
+n = 1e6;
 % t = linspace(0,pi,n);
 % x_interp = 0.5*(cos(t) + 1);
 x_interp = linspace(0,1,n); % Stabilisco le x a cui corrisponderanno le y di dorso e ventre
@@ -43,7 +43,7 @@ y_lm = (y_dorso_interp + y_ventre_interp) / 2;
 % y_lm(1)= 0; 
 
 % Calcolo piccole deviazioni della linea media per calcolare la derivata
-h = 1e-5;
+h = 1e-6;
 x_interp_der = linspace(0,1,n) + h; % Punti comuni
 y_dorso_interp = spline(x_dorso,y_dorso,x_interp_der);
 y_ventre_interp = spline(x_ventre,y_ventre,x_interp_der);
@@ -58,19 +58,26 @@ plot(x, y, 'b-', 'DisplayName', 'Airfoil geometry');
 axis equal
 hold on;
 plot(x_interp, y_lm, 'r-', 'DisplayName', 'Mean camber line');
-% plot(x_interp,dy_dx,'DisplayName','Derivative of the mcl');
+hold on
+plot(x_interp,dy_dx,'DisplayName','Derivative of the mcl');
 xlabel('x'); ylabel('y');
 legend;
 grid on;
 
 %% CALCOLO DELL'ANGOLO DI THEODORSEN
 
-l = linspace(-0.5 + n^-1, 0.5 - n^-1,n); % estremi di integrazione
-I = dy_dx./sqrt(0.25 - l.^2); % integrale per l'angolo di Theodorsen
-P = dy_dx./sqrt((0.5+l)./(0.5-l)); % integrale per l'angolo di zero lift
+eps = 1e-3; % la scelta di epsilon viene fatta guardando il plot della derivata prima, escludendo le regioni in cui inizia a oscillare 
+l = linspace(-0.5 + eps, 0.5 - eps,n); % estremi di integrazione
+I_aTh = dy_dx./sqrt(0.25 - l.^2); % integrale per l'angolo di Theodorsen
+I_a0 = dy_dx.*sqrt((0.5+l)./(0.5-l)); % integrale per l'angolo di zero lift
 
-a_Th = trapz(l,I) /  pi;
-a_Th = rad2deg(a_Th) % angolo d'attacco di Theodorsen 
+a_Th = trapz(l,I_aTh) /  pi;
+a_Th = rad2deg(a_Th) % angolo d'attacco di Theodorsen = -1.2625 ; da xfoil dovrebbe venire -1.2108 : errore del 4% 
 
-a_0 = trapz(l,P) * (2/pi);
-a_0 = rad2deg(a_0) % angolo d'attacco a portanza nulla 
+a_0 = trapz(l,I_a0) * (2/pi);
+a_0 = rad2deg(a_0) % angolo d'attacco a portanza nulla = -1.6835 ; da xfoil dovrebbe venire -1.968 : errore del 14%
+
+%%
+% eta = acos(-2.*x_interp);
+% dy_eta = 
+% a_0 = a_Th - (1/pi) * trapz(cos(eta)*dy_eta)
