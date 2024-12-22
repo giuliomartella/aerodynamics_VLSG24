@@ -1,12 +1,12 @@
-clear
+ clear
 clc
 close all
 
 % Add the directory containing airfoil data to the path
-addpath airfoils
+
 
 % Import airfoil profile data
-filename = 'k2.dat';
+filename = 'k2.txt';
 airfoil = importXfoilProfile(filename);
 
 % Compute mean camber line and its derivative

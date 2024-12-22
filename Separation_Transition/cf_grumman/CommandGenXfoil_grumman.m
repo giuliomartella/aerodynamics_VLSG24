@@ -2,7 +2,7 @@ clc
 clear
 close all
 
-commandXfoil = {'load GRUMMAN K-2 AIRFOIL.txt' ; 'ppar' ; 'n 364';newline; 'oper'; 'visc' ; '100000'; 'iter 1000'};
+commandXfoil = {'load k2.txt' ; 'ppar' ; 'n 364';newline; 'oper'; 'visc' ; '100000'; 'iter 1000'};
 ii=9;
 r=[1e5 1e6];
 a=[-1.21 0 2];

@@ -3,7 +3,7 @@ clear
 clc
 
 
-commandXfoil = {'load GRUMMAN K-2 AIRFOIL.txt' ; 'ppar' ; 'n 364'; 'oper'};
+commandXfoil = {'load k2.txt' ; 'ppar' ; 'n 364'; 'oper'};
 
 ii = 5;
 for a = -1.3:0.001:-1
@@ -17,7 +17,7 @@ for a = -1.3:0.001:-1
     ii = ii + 3;
 end
 
-writecell(commandXfoil,'commandXfoil.txt')
+writecell(commandXfoil,'commandXfoil_cp.txt')
 
 
 

@@ -1,4 +1,4 @@
-load GRUMMAN K-2 AIRFOIL.txt
+load k2.txt
 ppar
 n 364
 oper
