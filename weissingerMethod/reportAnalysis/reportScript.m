@@ -173,6 +173,7 @@ axis tight;
 % Optional: Add a legend if needed
 legend('Cessna','Glider', 'Cessna Elliptic distribution','Glider Elliptic distribution',  'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
 
+set(gcf, 'Units', 'centimeters', 'Position', [0, 0, 20, 8]);
 exportgraphics(gcf, 'circulation.pdf', 'ContentType', 'vector');
 
 
