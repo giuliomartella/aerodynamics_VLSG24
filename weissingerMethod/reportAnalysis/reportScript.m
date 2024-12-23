@@ -9,9 +9,9 @@ addpath('../'); % load functions
 
 % Build Elements
 plotFlag = false;
-wingC = buildElement(wingC, true);
+wingC = buildElement(wingC, plotFlag);
 tailC = buildElement(tailC, plotFlag);
-wingG = buildElement(wingG, false);
+wingG = buildElement(wingG, plotFlag);
 tailG = buildElement(tailG, plotFlag);
 
 %% Compute
@@ -48,7 +48,7 @@ end
 % Add Tail -2° angle
 tailC.twistZero = deg2rad(-2.0);
 tailG.twistZero = deg2rad(-2.0);
-tailC = buildElement(tailC, true);
+tailC = buildElement(tailC, false);
 tailG = buildElement(tailG, false);
 
 for i = 1:length(alpha_range)
