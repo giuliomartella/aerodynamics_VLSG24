@@ -3,7 +3,7 @@ clc
 close all
 
 % Add the directory containing airfoil data to the path
-
+addpath("mat_functions/");
 
 % Import airfoil profile data
 filename = 'k2.txt';
