@@ -1,6 +1,6 @@
 function wing = buildElement(wing, plotFlag)
 % Each aerodynamic surface is described as a vortex distribution. 
-% Airfoils are represented by a second order polynomial.
+% Airfoils are represented by a n-order polynomial.
 
 % singularities in [chord direction; spanwise direction]
 
@@ -66,6 +66,7 @@ wing.quarterNormal(:, 3) = sin(wing.dihedral) .* sign(-s(:))';
 
 %% Vortices defining vertex positions
 % VFL: vertex forward left
+% VteL : vertex on trailing edge left
 % VBR: vertex backward right
 % For simplicity and cost effctiveness vortex position is shaped on
 % linearized mean line
@@ -77,14 +78,17 @@ chordwiseDelta = wing.chordDistribution / wing.discretize(1) * 0.25; % vector
 addChordDelta = zeros(wing.discretize(1), wing.discretize(2), 3);
 addChordDelta(:, :, 1) = repmat(chordwiseDelta, wing.discretize(1), 1);
 
-wing.VFL = wing.controlPoint + addChordDelta - addSpanDelta;
-wing.VFR = wing.controlPoint + addChordDelta + addSpanDelta;
+wing.VFL = wing.controlPoint - addChordDelta - addSpanDelta;
+wing.VFR = wing.controlPoint - addChordDelta + addSpanDelta;
 
 % Building the linear system the scrpit will add a distance in uInf
 % direction.
 
 wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta;
 wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
+
+wing.VteL = repmat(wing.VBL(end, :, :), wing.discretize(1), 1, 1) + addChordDelta;
+wing.VteR = repmat(wing.VBR(end, :, :), wing.discretize(1), 1, 1) + addChordDelta;
 
 
 %% functions
@@ -272,15 +276,15 @@ function plotWingWithVortices(wing)
     z = controlPoints(:, :, 3); % Spanwise direction
 
     % Plot the wing surface
-    figure(2);
+    figure();
     surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
     hold on;
 
     % Overlay vortex vertices
     scatterVortexVertices(wing.VFL, 'r', 'VFL');
     scatterVortexVertices(wing.VFR, 'g', 'VFR');
-    scatterVortexVertices(wing.VBL, 'b', 'VBL');
-    scatterVortexVertices(wing.VBR, 'k', 'VBR');
+    % scatterVortexVertices(wing.VBL, 'b', 'VBL');
+    % scatterVortexVertices(wing.VBR, 'k', 'VBR');
 
     % Aesthetic improvements
     colormap jet; % Use a color map for surface shading

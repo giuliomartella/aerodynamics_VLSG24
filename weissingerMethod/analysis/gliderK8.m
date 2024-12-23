@@ -21,7 +21,8 @@ wingG.S = wingG.MGC * wingG.span;
 wingG.AR = wingG.span^2 / wingG.S;
 
 % define precision
-wingG.discretize = [21; 41]; % singularities in [chord direction; spanwise direction]
+wingG.discretize = [10; 20]; % singularities in [chord direction; spanwise direction]
+
 
 
 % data

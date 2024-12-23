@@ -21,6 +21,8 @@ VFL = reshape(wing.VFL, [], 3);
 VFR = reshape(wing.VFR, [], 3); 
 VBL = reshape(wing.VBL, [], 3);  
 VBR = reshape(wing.VBR, [], 3); 
+VteL = reshape(wing.VteL, [], 3);  
+VteR = reshape(wing.VteR, [], 3); 
 
 quarter = reshape(wing.quarter, [], 3); 
 quarterNormal = reshape(wing.quarterNormal, [], 3); 
@@ -37,6 +39,8 @@ elseif nargin == 3
     tail_VFR = reshape(tail.VFR, [], 3);
     tail_VBL = reshape(tail.VBL, [], 3);
     tail_VBR = reshape(tail.VBR, [], 3);
+    tail_VteL = reshape(tail.VteL, [], 3);
+    tail_VteR = reshape(tail.VteR, [], 3);
     tail_quarter = reshape(wing.quarter, [], 3); 
     tail_quarterNormal = reshape(wing.quarterNormal, [], 3); 
 
@@ -48,6 +52,8 @@ elseif nargin == 3
     VFR = [VFR; tail_VFR];
     VBL = [VBL; tail_VBL];
     VBR = [VBR; tail_VBR];
+    VteL = [VteL; tail_VteL];
+    VteR = [VteR; tail_VteR];
     quarter = [quarter; tail_quarter];
     quarterNormal = [quarterNormal; tail_quarterNormal];
 end
@@ -70,12 +76,14 @@ b = zeros(N, 1);
 deltaZ = zeros(N, 1);
 for j = 1:N
     for k = 1:N
-        % Each horseshoe vortex contributes with three filaments
-        qLeft = q(VFL(j,:) - VBL(j,:), rCP(k,:) - VBL(j,:), rCP(k,:) - VFL(j,:));
-        qForward = q(VFL(j,:) - VFR(j,:), rCP(k,:) - VFL(j,:), rCP(k,:) - VFR(j,:));
-        qRight = q(VBR(j,:) - VFR(j,:), rCP(k,:) - VFR(j,:), rCP(k,:) - VBR(j,:));
+        % Each horseshoe vortex contributes with five filaments
+        qLeftInf = q(VteL(j,:) - VBL(j,:), rCP(k,:) - VBL(j,:), rCP(k,:) - VteL(j,:));
+        qLeft = q(VFL(j,:) - VteL(j,:), rCP(k,:) - VteL(j,:), rCP(k,:) - VFL(j,:));
+        qForward = q(VFR(j,:) - VFL(j,:), rCP(k,:) - VFL(j,:), rCP(k,:) - VFR(j,:));
+        qRight = q(VteR(j,:) - VFR(j,:), rCP(k,:) - VFR(j,:), rCP(k,:) - VteR(j,:));
+        qRightInf = q(VBR(j,:) - VteR(j,:), rCP(k,:) - VteR(j,:), rCP(k,:) - VBR(j,:));
 
-        A(j, k) = dot(qLeft + qForward + qRight, normal(k,:));
+        A(j, k) = dot(qLeftInf + qLeft + qForward + qRight + qRightInf, normal(k,:));
     end
     deltaZ(j) = norm(VFL(j,:) - VFR(j,:));
 end
@@ -94,19 +102,25 @@ if tailFlag
     spanN = spanN + tail.discretize(2);
 end
 
+devU = - cross([0;0;1], uInf);
+% devU = [0,0,1];
+
 for k = 1:spanN
     for j = 1:N
-        % Each horseshoe vortex contributes with three filaments
-        qLeft = q(VFL(j,:) - VBL(j,:), quarter(k,:) - VBL(j,:), quarter(k,:) - VFL(j,:));
-        qForward = q(VFL(j,:) - VFR(j,:), quarter(k,:) - VFL(j,:), quarter(k,:) - VFR(j,:));
-        qRight = q(VBR(j,:) - VFR(j,:), quarter(k,:) - VFR(j,:), quarter(k,:) - VBR(j,:));
+        % Each horseshoe vortex contributes with five filaments
+        qLeftInf = q(VteL(j,:) - VBL(j,:), quarter(k,:) - VBL(j,:), quarter(k,:) - VteL(j,:));
+        qLeft = q(VFL(j,:) - VteL(j,:), quarter(k,:) - VteL(j,:), quarter(k,:) - VFL(j,:));
+        qForward = q(VFR(j,:) - VFL(j,:), quarter(k,:) - VFL(j,:), quarter(k,:) - VFR(j,:));
+        qRight = q(VteR(j,:) - VFR(j,:), quarter(k,:) - VFR(j,:), quarter(k,:) - VteR(j,:));
+        qRightInf = q(VBR(j,:) - VteR(j,:), quarter(k,:) - VteR(j,:), quarter(k,:) - VBR(j,:));
 
-        quarterInfluence(k, j) = dot(qLeft + qForward + qRight, quarterNormal(k,:)) * gamma(j);
+        % quarterInfluence(k, j) = dot(qLeft + qForward + qRight, quarterNormal(k,:)) * gamma(j);
+        quarterInfluence(k, j) = dot(qLeftInf + qLeft + qRight + qRightInf, devU) * gamma(j);
     end
 end
 
 inducedU = sum(quarterInfluence, 2);
-alphaI = atan(inducedU ./ norm(uInf))';
+alphaI = atan2(inducedU, norm(uInf))';
 
 
 %% Split gamma and deltaZ into wing and tail parts, keeping 2D matrices

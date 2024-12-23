@@ -12,7 +12,7 @@ wingC.taper = 0.6369;
 wingC.firstTaper = 0.418;
 wingC.twistPrime = deg2rad(2);
 wingC.airfoilCoefficients = [17.3648404437696	-87.1283457681812	185.023337210179	-216.177818020936	151.422278341809	-65.2483351673165	17.2902703811582	-2.77635906475406	0.150449092907973	0.0781532987533795	0.00158968881305051];
-% wingC.airfoilCoefficients = [0,0,0];
+ wingC.airfoilCoefficients = [0,0,0];
 
 % extra
 wingC.tipChord = wingC.rootChord * wingC.taper;
@@ -21,7 +21,8 @@ wingC.S = wingC.MGC * wingC.span;
 wingC.AR = wingC.span^2 / wingC.S;
 
 % define precision
-wingC.discretize = [21; 41]; % singularities in [chord direction; spanwise direction]
+wingC.discretize = [20; 40]; % singularities in [chord direction; spanwise direction]
+
 
 
 % data

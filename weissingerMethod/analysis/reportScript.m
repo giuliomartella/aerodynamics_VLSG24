@@ -16,7 +16,7 @@ tailG = buildElement(tailG, plotFlag);
 
 %% Compute
 alpha_range = deg2rad(-5:2:12);
-cL = zeros(length(alpha_range), 2);
+cL = zeros(length(alpha_range), 4);
 cD = cL;
 for i = 1:length(alpha_range)
     alpha = alpha_range(i);
@@ -44,6 +44,7 @@ for i = 1:length(alpha_range)
     cL(i, 4) = wingG.cL;
     cD(i, 4) = wingG.cD;
 end
+
 
 %% Polar
 cdElliptic = @(cl, AR) cl.^2 / pi / AR; 
@@ -95,14 +96,19 @@ legend('Cessna wing','Glider wing', 'Two Dimensional Thin Airfoil','Cessna with 
 
 % exportgraphics(gcf, 'cl_alpha.pdf', 'ContentType', 'vector');
 
-%% Circulation distribution, AoA = 3°
+%% Circulation distribution, AoA = 2°
 
-alpha = deg2rad(3.0);
+alpha = deg2rad(5.0);
 uInf = [cos(alpha), -sin(alpha), 0; sin(alpha), cos(alpha), 0; 0, 0, 1] * [1.0; 0.0; 0.0];
 wingC = buildLinearSystem(uInf, wingC, tailC);
 wingC = postprocessing(wingC);
 wingG = buildLinearSystem(uInf, wingG, tailG);
 wingG = postprocessing(wingG);
+
+figure()
+plot(wingC.s, rad2deg(wingC.alphaI));
+
+
 
 N = length(wingC.gammaDistribution); % Sine functions number
 S = zeros(length(wingC.s), N);

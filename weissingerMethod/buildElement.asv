@@ -1,6 +1,6 @@
 function wing = buildElement(wing, plotFlag)
 % Each aerodynamic surface is described as a vortex distribution. 
-% Airfoils are represented by a second order polynomial.
+% Airfoils are represented by a n-order polynomial.
 
 % singularities in [chord direction; spanwise direction]
 
@@ -66,6 +66,7 @@ wing.quarterNormal(:, 3) = sin(wing.dihedral) .* sign(-s(:))';
 
 %% Vortices defining vertex positions
 % VFL: vertex forward left
+% VteL : vertex on trailing edge left
 % VBR: vertex backward right
 % For simplicity and cost effctiveness vortex position is shaped on
 % linearized mean line
@@ -83,14 +84,10 @@ wing.VFR = wing.controlPoint + addChordDelta + addSpanDelta;
 % Building the linear system the scrpit will add a distance in uInf
 % direction.
 
-wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta;
-wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta;
+wing.VBL = wing.controlPoint - addChordDelta - addSpanDelta;
+wing.VBR = wing.controlPoint - addChordDelta + addSpanDelta;
 
-addx = zeros(wing.discretize(1), wing.discretize(2), 3);
-addx(:, :, 3) = ones(wing.discretize') * 1;
-wing.VBL = wing.controlPoint + addChordDelta - addSpanDelta + addx;
-wing.VBR = wing.controlPoint + addChordDelta + addSpanDelta + addx;
-
+wing.VteL = repmat(wing.VBL(end, :, :), wing.discretize(1), 1, 1);
 
 
 %% functions
@@ -278,7 +275,7 @@ function plotWingWithVortices(wing)
     z = controlPoints(:, :, 3); % Spanwise direction
 
     % Plot the wing surface
-    figure(4);
+    figure(2);
     surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
     hold on;
 
@@ -322,52 +319,46 @@ end
 function plotQuarterChordWithNormals(wing)
 % PLOTQUARTERCHORDWITHNORMALS Visualizes the quarter chord points and their normals in 3D.
 %
-% This function plots the points along the quarter chord line of the wing 
-% surface and overlays the normals as vectors for visualization.
+% This function plots the quarter chord points on the wing surface and overlays
+% their normals for visualization, ensuring consistency with the wing surface plot.
 %
-% Input:
-%   - wing: a structure containing wing geometry data, including:
-%       * wing.xQuarterChord: x-coordinates of the quarter chord points.
-%       * wing.yQuarterChord: y-coordinates of the quarter chord points.
-%       * wing.zQuarterChord: z-coordinates of the quarter chord points.
-%       * wing.normals: a matrix (Nx3) containing normal vectors at each quarter chord point.
-%
-% Example:
-%   plotQuarterChordWithNormals(wing);
+% Inputs:
+%   - wing: A structure containing wing geometry data, including:
+%       * wing.controlPoint: 3D array [N_chord x N_span x 3] of surface points.
+%       * wing.quarter: 3D array [N_chord x N_span x 3] of quarter chord points.
+%       * wing.quarterNormal: 3D array [N_chord x N_span x 3] of normal vectors at quarter chord points.
 
-    % Extract data from the wing structure
-    xQuarterChord = wing.quarter(:,1);
-    yQuarterChord = wing.quarter(:,2);
-    zQuarterChord = wing.quarter(:,3);
-    normals = wing.quarterNormal;
+    % Extract quarter chord points and their normals
+    xQuarterChord = wing.quarter(:, 1); % X-coordinates
+    yQuarterChord = wing.quarter(:, 2); % Y-coordinates
+    zQuarterChord = wing.quarter(:, 3); % Z-coordinates
 
-    % Verify dimensions consistency
-    if length(xQuarterChord) ~= length(yQuarterChord) || length(xQuarterChord) ~= length(zQuarterChord)
-        error('Quarter chord points dimensions are inconsistent.');
-    end
-    if size(normals, 1) ~= length(xQuarterChord) || size(normals, 2) ~= 3
-        error('Normal vectors dimensions are inconsistent.');
-    end
+    normals = wing.quarterNormal; % Normal vectors at quarter chord points
+    nx = normals(:, 1); % X-component of normals
+    ny = normals(:, 2); % Y-component of normals
+    nz = normals(:, 3); % Z-component of normals
 
-    % Plot quarter chord points
-    figure(5);
-    plot3(xQuarterChord, yQuarterChord, zQuarterChord, 'o-', 'DisplayName', 'Quarter Chord Line');
+    % Plot the wing surface (consistent with figure 2)
+    figure(2);
     hold on;
 
-    % Add normals to the plot
-    quiver3(xQuarterChord, yQuarterChord, zQuarterChord, ...
-            normals(:,1), normals(:,2), normals(:,3), ...
+    % Overlay quarter chord points
+    plot3(zQuarterChord, xQuarterChord, yQuarterChord, 'o-', 'DisplayName', 'Quarter Chord Line');
+
+    % Add normal vectors to the plot
+    quiver3(zQuarterChord, xQuarterChord, yQuarterChord, ...
+            nz, nx, ny, ...
             0.5, 'r', 'LineWidth', 1.5, 'DisplayName', 'Normals');
 
-    % Format the plot
-    xlabel('X [m]');
-    ylabel('Y [m]');
-    zlabel('Z [m]');
+    % Aesthetic improvements
+    xlabel('Spanwise Direction (Z)');
+    ylabel('Chord Direction (X)');
+    zlabel('Vertical Displacement (Y)');
     grid on;
     axis equal;
     legend('show');
     title('Quarter Chord Points and Normals');
-
+    hold off;
 end
 
 
