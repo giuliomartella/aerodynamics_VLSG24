@@ -13,7 +13,6 @@ wingG.firstTaper = 0.415;
 wingG.twistPrime = deg2rad(0);
 wingG.airfoilCoefficients = [-109.381022564051	548.763980581295	-1174.91212765915	1402.64294899680	-1024.59095207000	473.802207095480	-139.597200898110	26.3778326749395	-3.57684985871406	0.469337303906058	0.00147990272037135];
 
-
 % extra
 wingG.tipChord = wingG.rootChord * wingG.taper;
 wingG.MGC = (wingG.rootChord + wingG.tipChord) / 2.0 * (1 - wingG.firstTaper) + wingG.rootChord * wingG.firstTaper; % Mean Geometric Chord
@@ -21,7 +20,7 @@ wingG.S = wingG.MGC * wingG.span;
 wingG.AR = wingG.span^2 / wingG.S;
 
 % define precision
-wingG.discretize = [2; 4]; % singularities in [chord direction; spanwise direction]
+wingG.discretize = [10; 20]; % singularities in [chord direction; spanwise direction]
 
 
 
@@ -45,6 +44,6 @@ tailG.S = tailG.MGC * tailG.span;
 tailG.AR = tailG.span^2 / tailG.S;
 
 % define precision
-tailG.discretize = [2; 2]; % singularities in [chord direction; spanwise direction]
+tailG.discretize = [6; 11]; % singularities in [chord direction; spanwise direction]
 
 end

@@ -11,7 +11,7 @@ end
     function wing = take(wing)
         wing.gammaDistribution = sum(wing.gamma, 1);
         wing.L2D = wing.gammaDistribution * cos(wing.dihedral) * 1.225;
-        wing.D2D = wing.L2D .* sin(wing.alphaI);
+        wing.D2D = wing.L2D .* sin(- wing.alphaI);
         % wing.L2D = wing.L2D .* cos(wing.alphaI);
 
         wing.L = sum(wing.L2D.* wing.span ./ wing.discretize(2));

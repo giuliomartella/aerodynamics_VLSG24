@@ -103,6 +103,7 @@ if tailFlag
 end
 
 devU = cross([0;0;1], uInf);
+% devU = [0,0,1];
 
 for k = 1:spanN
     for j = 1:N

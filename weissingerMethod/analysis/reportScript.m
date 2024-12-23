@@ -15,7 +15,7 @@ wingG = buildElement(wingG, false);
 tailG = buildElement(tailG, plotFlag);
 
 %% Compute
-alpha_range = deg2rad(-5:2:12);
+alpha_range = deg2rad(-5:2:15);
 cL = zeros(length(alpha_range), 4);
 cD = cL;
 for i = 1:length(alpha_range)
@@ -36,7 +36,7 @@ for i = 1:length(alpha_range)
 
     [wingC, tailC] = buildLinearSystem(uInf, wingC, tailC);
     wingC = postprocessing(wingC, tailC);
-    [wingG, tailG] = buildLinearSystem(uInf, wingG, tailC);
+    [wingG, tailG] = buildLinearSystem(uInf, wingG, tailG);
     wingG = postprocessing(wingG, tailG);
 
     cL(i, 3) = wingC.cL;
@@ -53,8 +53,8 @@ plot(cD(:, 1), cL(:, 1), 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6); % cessna
 grid on
 hold on
 plot(cD(:, 2), cL(:, 2), 'ro-', 'LineWidth', 1.5, 'MarkerSize', 6); % glider
-plot(cdElliptic(linspace(-0.5, 1.3), wingC.AR), linspace(-0.5, 1.3), 'b', 'LineWidth', 0.5);
-plot(cdElliptic(linspace(-0.5, 1.3), wingG.AR), linspace(-0.5, 1.3),'r', 'LineWidth', 0.5);
+% plot(cdElliptic(linspace(-0.5, 1.3), wingC.AR), linspace(-0.5, 1.3), 'b', 'LineWidth', 0.5);
+% plot(cdElliptic(linspace(-0.5, 1.3), wingG.AR), linspace(-0.5, 1.3),'r', 'LineWidth', 0.5);
 plot(cD(:,3), cL(:,3), '--b^', 'LineWidth', 1.5, 'MarkerSize', 6, 'MarkerFaceColor', 'blue'); % Cessna con coda
 plot(cD(:,4), cL(:,4), '--r^', 'LineWidth', 1.5, 'MarkerSize', 6, 'MarkerFaceColor', 'red'); % Glider con coda
 
@@ -68,13 +68,15 @@ title('Lift-Drag Polar Curve', 'Interpreter', 'latex', 'FontSize', 16);
 axis tight;
 
 % Optional: Add a legend if needed
-legend('Cessna wing', 'Glider wing', 'Elliptic distribution with Cessna AR ', 'Elliptic distribution with Glider AR ','Cessna with tail', 'Glider with tail', 'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
+% legend('Cessna wing', 'Glider wing', 'Elliptic distribution with Cessna AR ', 'Elliptic distribution with Glider AR ','Cessna with tail', 'Glider with tail', 'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
+legend('Cessna wing', 'Glider wing','Cessna with tail', 'Glider with tail', 'Interpreter', 'latex', 'FontSize', 12, 'Location', 'best');
 
 % exportgraphics(gcf, 'polar.pdf', 'ContentType', 'vector');
 
  %% Cl Alpha
 figure(7);
 plot(rad2deg(alpha_range), cL(:,1), '-bo', 'LineWidth', 1.5, 'MarkerSize', 6); % cessna
+clAlphaC = polyfit(alpha_range, cL(:,1), 1);
 hold on
 plot(rad2deg(alpha_range), cL(:,2), '-ro', 'LineWidth', 1.5, 'MarkerSize', 6); % glider
 plot(rad2deg(alpha_range), alpha_range*2*pi, 'g', 'LineWidth', 0.5);
