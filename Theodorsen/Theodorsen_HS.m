@@ -3,6 +3,7 @@ clc
 close all
 clear 
 
+addpath("mat_functions\")
 %% Input
 
 TestCase = 0;
@@ -17,26 +18,61 @@ LE_Y_Position = 0;
 %% Creazione profilo
 
 % numero profilo:
-% [x,y]=createProfile(CodiceProfilo,NPannelli,Chord);
+% [x,y]=createProfile(NomeProfilo,NPannelli,Chord);
+% Corpo.x = x ;
+% Corpo.y = y ;
 
-Corpo = importXfoilProfile(strcat(NomeProfilo, '.dat'));
+inputPts = importXfoilProfile(strcat(NomeProfilo, '.txt'));
+inputPts = table2array(inputPts);
+Corpo.x = inputPts(:,1);
+Corpo.y = inputPts(:,2);
+
 % Prima flippa i vettori
 x = flipud(Corpo.x);
 y = flipud(Corpo.y);
 
-%Rielaborazione punti
+% %Rielaborazione punti - numero arbitrario di pannelli
+% percentPannelliBa = 0.15; % percentuale pannelli dedicati al bordo d'attacco
+% baChord = 0.02;     % inizio bordo d'attacco rispetto alla corda
+% 
+% %punti bordo d'attacco
+% NPannelliBa = ceil(NPannelli * percentPannelliBa);
+% 
+% NPuntiBaD = ceil((NPannelliBa-1)/2);
+% nBaD = ceil(NPannelliBa/2);
+% xBaD = linspace(0,pi/2, NPuntiBaD+1);
+% xBaD = xBaD(2:end);
+% xBaD = fliplr(baChord * (1 - sin(xBaD)));
+% 
+% NPuntiBaV = floor((NPannelliBa-1)/2);
+% nBaV = floor(NPannelliBa/2);
+% xBaV = linspace(0,pi/2, NPuntiBaV+2);
+% xBaV = xBaV(2:end-1);
+% xBaV = baChord .* (1 - sin(xBaV));
+% 
+% 
+% %punti rimanenti
 % ba = find(~x);
 % ba = ba(1);
-% NPuntiDorso = ceil((NPannelli+1)/2);
-% NPuntiVentre = floor((NPannelli+1)/2);
-% xV = linspace(x(1), x(ba-1), NPuntiVentre); 
-% xD = linspace(x(ba), x(end), NPuntiDorso);
-% yV = interp1(x(1:ba-1), y(1:ba-1), xV);
+% NPuntiDorso = ceil((NPannelli-NPannelliBa+2)/2);
+% NPuntiVentre = floor((NPannelli-NPannelliBa+2)/2);
+% xV = linspace(x(1), baChord, NPuntiVentre); 
+% xD = linspace(baChord, x(end), NPuntiDorso);
+% 
+% 
+% %riordinamento punti
+% xV = [xV xBaV];
+% xD = [xBaD xD];
+% 
+% yV = interp1([x(1:ba-1); 0], [y(1:ba-1); 0], xV);
 % yD = interp1(x(ba:end), y(ba:end), xD);
+% 
 % x = [xV xD]';
 % y = [yV yD]';
-% Corpo = trimdata(Corpo, length(x));
 
+
+Corpo.x = x ;
+Corpo.y = y ;
 Corpo.x = x.*Chord;
 Corpo.y = y.*Chord;
 
@@ -46,7 +82,7 @@ axis equal
 
 %% Creazione di una struttura di pannelli
 
-[Centro, Normale, Tangente, Estremo_1, Estremo_2, alpha, lunghezza, L2G_TransfMatrix, G2L_TransfMatrix] = CreaStrutturaPannelli(Corpo);
+[Centro, Normale, Tangente, Estremo_1, Estremo_2, ~, lunghezza, L2G_TransfMatrix, G2L_TransfMatrix] = CreaStrutturaPannelli(Corpo);
         
 %% Inizializzazione matrici e vettori
 
@@ -184,7 +220,7 @@ for ii=1:length(cpBa)
 
     % compute stream velocity locally tangent
     velStreamTangent = zeros(NPannelli, 1);
-        for j = 1:NPannelli
+    for j = 1:NPannelli
 
         Tangente_qui = Tangente(j, :)';
         index = j;
