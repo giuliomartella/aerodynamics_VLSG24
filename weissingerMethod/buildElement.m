@@ -12,7 +12,7 @@ s = linspace(-0.5, 0.5, wing.discretize(2)+1);
 s = s(1: wing.discretize(2)) + 1 / wing.discretize(2) / 2; % abscissa
 wing.chordDistribution = (1 - (abs(s)/0.5 - wing.firstTaper) * wing.taper) * wing.rootChord;
 wing.chordDistribution(wing.chordDistribution > wing.rootChord) = wing.rootChord;
-wing.twistDistribution = wing.twistPrime * abs(s)/0.5;
+wing.twistDistribution = wing.twistPrime * abs(s)/0.5 - wing.twistZero;
 
 wing.quarter = zeros(wing.discretize(2), 3);
 wing.quarter(:, 1) = wing.chordDistribution * 0.25;
@@ -276,7 +276,7 @@ function plotWingWithVortices(wing)
     z = controlPoints(:, :, 3); % Spanwise direction
 
     % Plot the wing surface
-    figure();
+    figure(4);
     surf(z, x, y, 'FaceColor', 'interp', 'EdgeColor', 'none'); 
     hold on;
 
